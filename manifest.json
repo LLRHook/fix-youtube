@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Fix YouTube",
-  "version": "0.1.0",
-  "description": "Removes Shorts and makes Subscriptions your default YouTube landing page.",
-  "permissions": ["declarativeNetRequest"],
+  "version": "0.2.0",
+  "description": "Removes Shorts, redirects to Subscriptions, hides distractions, and gives you control over your YouTube experience.",
+  "permissions": ["declarativeNetRequest", "storage"],
   "host_permissions": ["*://*.youtube.com/*"],
   "declarative_net_request": {
     "rule_resources": [
@@ -13,6 +13,13 @@
         "path": "rules.json"
       }
     ]
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "content_scripts": [
     {

@@ -1,38 +1,101 @@
-/* Fix YouTube - Styles */
+/* =============================================
+   Fix YouTube - Styles
+   Features are toggled via classes on <html>:
+     .fix-yt-hide-shorts
+     .fix-yt-hide-sidebar
+     .fix-yt-no-autoplay
+     .fix-yt-hide-trending
+     .fix-yt-grid-{2..6}
+   ============================================= */
 
-/* ===== Hide Shorts everywhere ===== */
+/* ===== Hide Shorts ===== */
 
-/* Shorts shelf on home/subscriptions */
-ytd-rich-shelf-renderer[is-shorts],
-ytd-reel-shelf-renderer {
+.fix-yt-hide-shorts ytd-rich-shelf-renderer[is-shorts],
+.fix-yt-hide-shorts ytd-reel-shelf-renderer {
   display: none !important;
 }
 
-/* Shorts tab in channel pages */
-yt-tab-shape[tab-title="Shorts"],
-tp-yt-paper-tab:has(> .tab-content:has([title="Shorts"])) {
+.fix-yt-hide-shorts yt-tab-shape[tab-title="Shorts"],
+.fix-yt-hide-shorts tp-yt-paper-tab:has(> .tab-content:has([title="Shorts"])) {
   display: none !important;
 }
 
-/* Shorts in search results */
-ytd-video-renderer:has(a[href*="/shorts/"]) {
+.fix-yt-hide-shorts ytd-video-renderer:has(a[href*="/shorts/"]) {
   display: none !important;
 }
 
-/* Shorts in sidebar/recommendations */
-ytd-compact-video-renderer:has(a[href*="/shorts/"]),
-ytd-grid-video-renderer:has(a[href*="/shorts/"]),
-ytd-rich-item-renderer:has(a[href*="/shorts/"]) {
+.fix-yt-hide-shorts ytd-compact-video-renderer:has(a[href*="/shorts/"]),
+.fix-yt-hide-shorts ytd-grid-video-renderer:has(a[href*="/shorts/"]),
+.fix-yt-hide-shorts ytd-rich-item-renderer:has(a[href*="/shorts/"]) {
   display: none !important;
 }
 
-/* Shorts button in left sidebar navigation */
-ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
-ytd-guide-entry-renderer:has(a[title="Shorts"]) {
+.fix-yt-hide-shorts ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
+.fix-yt-hide-shorts ytd-guide-entry-renderer:has(a[title="Shorts"]) {
   display: none !important;
 }
 
-/* Shorts notification chips */
-ytd-notification-renderer:has(a[href*="/shorts/"]) {
+.fix-yt-hide-shorts ytd-notification-renderer:has(a[href*="/shorts/"]) {
   display: none !important;
+}
+
+/* ===== Hide Related / Suggested Videos Sidebar ===== */
+
+.fix-yt-hide-sidebar #related,
+.fix-yt-hide-sidebar #secondary-inner #related,
+.fix-yt-hide-sidebar ytd-watch-next-secondary-results-renderer {
+  display: none !important;
+}
+
+.fix-yt-hide-sidebar .ytp-endscreen-content,
+.fix-yt-hide-sidebar .ytp-ce-element {
+  display: none !important;
+}
+
+.fix-yt-hide-sidebar ytd-watch-flexy[flexy][is-two-columns_] #primary.ytd-watch-flexy {
+  max-width: 100% !important;
+}
+
+/* ===== Disable Autoplay (hide the toggle) ===== */
+
+.fix-yt-no-autoplay .ytp-autonav-toggle-button-container,
+.fix-yt-no-autoplay .ytp-button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
+  display: none !important;
+}
+
+/* ===== Hide Trending / Explore ===== */
+
+.fix-yt-hide-trending ytd-mini-guide-entry-renderer:has(a[title="Trending"]),
+.fix-yt-hide-trending ytd-guide-entry-renderer:has(a[title="Trending"]),
+.fix-yt-hide-trending ytd-mini-guide-entry-renderer:has(a[title="Explore"]),
+.fix-yt-hide-trending ytd-guide-entry-renderer:has(a[title="Explore"]) {
+  display: none !important;
+}
+
+.fix-yt-hide-trending ytd-guide-section-renderer:has(a[href="/feed/trending"]),
+.fix-yt-hide-trending #endpoint[href="/feed/trending"],
+.fix-yt-hide-trending #endpoint[href="/feed/explore"] {
+  display: none !important;
+}
+
+/* ===== Grid Layout (videos per row) ===== */
+
+.fix-yt-grid-2 ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 2 !important;
+}
+
+.fix-yt-grid-3 ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 3 !important;
+}
+
+.fix-yt-grid-4 ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 4 !important;
+}
+
+.fix-yt-grid-5 ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 5 !important;
+}
+
+.fix-yt-grid-6 ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 6 !important;
 }

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 300px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      color: #f1f1f1;
+      background: #1a1a1a;
+    }
+
+    header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #ff4444;
+    }
+
+    header p {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .section {
+      padding: 10px 16px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .toggle-label {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .toggle-label span {
+      font-size: 13px;
+      color: #e0e0e0;
+    }
+
+    .toggle-label small {
+      font-size: 10px;
+      color: #777;
+    }
+
+    .switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #444;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      left: 3px;
+      bottom: 3px;
+      background: #ccc;
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .switch input:checked + .slider {
+      background: #ff4444;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(16px);
+      background: #fff;
+    }
+
+    .grid-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+    }
+
+    .grid-options {
+      display: flex;
+      gap: 4px;
+    }
+
+    .grid-options button {
+      width: 30px;
+      height: 26px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #2a2a2a;
+      color: #aaa;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .grid-options button:hover {
+      border-color: #666;
+      color: #fff;
+    }
+
+    .grid-options button.active {
+      border-color: #ff4444;
+      background: #3a1a1a;
+      color: #ff4444;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fix YouTube</h1>
+    <p>Take back control of your feed</p>
+  </header>
+
+  <div class="section">
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Remove Shorts</span>
+        <small>Hide all Shorts content site-wide</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="hideShorts">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Redirect Home to Subscriptions</span>
+        <small>Always land on your subscriptions feed</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="redirectHome">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Hide Suggested Videos</span>
+        <small>Remove sidebar recommendations on watch pages</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="hideSidebar">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Disable Autoplay</span>
+        <small>Stop videos from auto-playing next</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="noAutoplay">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Hide Trending / Explore</span>
+        <small>Remove from the sidebar navigation</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="hideTrending">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="grid-row">
+      <div class="toggle-label">
+        <span>Videos per Row</span>
+        <small>Customize the grid layout</small>
+      </div>
+      <div class="grid-options">
+        <button data-grid="0">Auto</button>
+        <button data-grid="2">2</button>
+        <button data-grid="3">3</button>
+        <button data-grid="4">4</button>
+        <button data-grid="5">5</button>
+        <button data-grid="6">6</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
