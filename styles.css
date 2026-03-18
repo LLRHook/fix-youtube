@@ -1,1 +1,38 @@
 /* Fix YouTube - Styles */
+
+/* ===== Hide Shorts everywhere ===== */
+
+/* Shorts shelf on home/subscriptions */
+ytd-rich-shelf-renderer[is-shorts],
+ytd-reel-shelf-renderer {
+  display: none !important;
+}
+
+/* Shorts tab in channel pages */
+yt-tab-shape[tab-title="Shorts"],
+tp-yt-paper-tab:has(> .tab-content:has([title="Shorts"])) {
+  display: none !important;
+}
+
+/* Shorts in search results */
+ytd-video-renderer:has(a[href*="/shorts/"]) {
+  display: none !important;
+}
+
+/* Shorts in sidebar/recommendations */
+ytd-compact-video-renderer:has(a[href*="/shorts/"]),
+ytd-grid-video-renderer:has(a[href*="/shorts/"]),
+ytd-rich-item-renderer:has(a[href*="/shorts/"]) {
+  display: none !important;
+}
+
+/* Shorts button in left sidebar navigation */
+ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
+ytd-guide-entry-renderer:has(a[title="Shorts"]) {
+  display: none !important;
+}
+
+/* Shorts notification chips */
+ytd-notification-renderer:has(a[href*="/shorts/"]) {
+  display: none !important;
+}
