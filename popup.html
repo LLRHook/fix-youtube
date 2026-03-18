@@ -62,6 +62,7 @@
       color: #777;
     }
 
+    /* Toggle switch */
     .switch {
       position: relative;
       width: 36px;
@@ -106,6 +107,7 @@
       background: #fff;
     }
 
+    /* Grid selector */
     .grid-row {
       display: flex;
       align-items: center;
@@ -136,6 +138,63 @@
     }
 
     .grid-options button.active {
+      border-color: #ff4444;
+      background: #3a1a1a;
+      color: #ff4444;
+      font-weight: 600;
+    }
+
+    /* Timer section */
+    .timer-display {
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+
+    .timer-remaining {
+      font-size: 28px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .timer-remaining.warning {
+      color: #ff8800;
+    }
+
+    .timer-remaining.critical {
+      color: #ff4444;
+    }
+
+    .timer-caption {
+      font-size: 10px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .limit-options {
+      display: flex;
+      gap: 4px;
+    }
+
+    .limit-options button {
+      flex: 1;
+      height: 26px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #2a2a2a;
+      color: #aaa;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .limit-options button:hover {
+      border-color: #666;
+      color: #fff;
+    }
+
+    .limit-options button.active {
       border-color: #ff4444;
       background: #3a1a1a;
       color: #ff4444;
@@ -203,6 +262,36 @@
         <input type="checkbox" id="hideTrending">
         <span class="slider"></span>
       </label>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Daily Time Limit</span>
+        <small>Lock YouTube after your daily allowance</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="dailyTimerEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="timer-display" id="timerDisplay">
+      <div class="timer-remaining" id="timerRemaining">--:--</div>
+      <div class="timer-caption">remaining today</div>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label">
+        <span>Daily Limit</span>
+      </div>
+      <div class="limit-options">
+        <button data-limit="30">30m</button>
+        <button data-limit="60">1h</button>
+        <button data-limit="90">1.5h</button>
+        <button data-limit="120">2h</button>
+      </div>
     </div>
   </div>
 

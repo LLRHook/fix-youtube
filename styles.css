@@ -39,6 +39,13 @@
   display: none !important;
 }
 
+/* ===== Hide Home from sidebar ===== */
+
+ytd-mini-guide-entry-renderer:has(a[title="Home"]),
+ytd-guide-entry-renderer:has(a[title="Home"]) {
+  display: none !important;
+}
+
 /* ===== Hide Related / Suggested Videos Sidebar ===== */
 
 .fix-yt-hide-sidebar #related,
@@ -47,11 +54,13 @@
   display: none !important;
 }
 
+/* Endscreen video suggestions */
 .fix-yt-hide-sidebar .ytp-endscreen-content,
 .fix-yt-hide-sidebar .ytp-ce-element {
   display: none !important;
 }
 
+/* Expand the player area when sidebar is hidden */
 .fix-yt-hide-sidebar ytd-watch-flexy[flexy][is-two-columns_] #primary.ytd-watch-flexy {
   max-width: 100% !important;
 }
@@ -98,4 +107,92 @@
 
 .fix-yt-grid-6 ytd-rich-grid-renderer {
   --ytd-rich-grid-items-per-row: 6 !important;
+}
+
+/* ===== On-Page Timer Clock ===== */
+
+#fix-yt-clock {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2147483646;
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(8px);
+  color: #e0e0e0;
+  font-family: "YouTube Sans", "Roboto Mono", monospace;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  user-select: none;
+  transition: color 0.3s, border-color 0.3s;
+  letter-spacing: 0.5px;
+}
+
+#fix-yt-clock.warning {
+  color: #ff8800;
+  border-color: rgba(255, 136, 0, 0.3);
+}
+
+#fix-yt-clock.critical {
+  color: #ff4444;
+  border-color: rgba(255, 68, 68, 0.4);
+  animation: fix-yt-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fix-yt-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ===== Daily Limit Blocker Overlay ===== */
+
+#fix-yt-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #0f0f0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.fix-yt-blocker-content {
+  text-align: center;
+  color: #f1f1f1;
+  max-width: 480px;
+  padding: 40px;
+}
+
+.fix-yt-blocker-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+#fix-yt-blocker h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+#fix-yt-blocker p {
+  font-size: 18px;
+  color: #aaa;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+#fix-yt-blocker strong {
+  color: #ff4444;
+}
+
+.fix-yt-blocker-sub {
+  margin-top: 12px !important;
+  font-size: 14px !important;
+  color: #666 !important;
 }
