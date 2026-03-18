@@ -6,6 +6,7 @@ const DEFAULTS = {
   noAutoplay: true,
   hideTrending: true,
   redirectHome: true,
+  subsOnly: true,
   gridColumns: 0,
   dailyTimerEnabled: true,
   dailyLimitMinutes: 60,
@@ -17,6 +18,7 @@ const TOGGLE_IDS = [
   "noAutoplay",
   "hideTrending",
   "redirectHome",
+  "subsOnly",
   "dailyTimerEnabled",
 ];
 

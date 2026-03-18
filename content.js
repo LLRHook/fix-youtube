@@ -9,6 +9,7 @@
     noAutoplay: true,
     hideTrending: true,
     redirectHome: true,
+    subsOnly: true,
     gridColumns: 0, // 0 = YouTube default
     dailyTimerEnabled: true,
     dailyLimitMinutes: 60,
@@ -102,6 +103,140 @@
     if (toggle && toggle.getAttribute("aria-checked") === "true") {
       toggle.click();
     }
+  }
+
+  // ===== Subscribed Channels Filter =====
+
+  let subscribedChannels = new Set();
+
+  function loadCachedSubscriptions() {
+    chrome.storage.local.get(
+      ["subscribedChannels", "subscribedChannelsUpdated"],
+      (data) => {
+        if (data.subscribedChannels) {
+          subscribedChannels = new Set(data.subscribedChannels);
+        }
+        // Refresh if cache is older than 1 hour or empty
+        const age = Date.now() - (data.subscribedChannelsUpdated || 0);
+        if (subscribedChannels.size === 0 || age > 3600000) {
+          refreshSubscriptions();
+        }
+      }
+    );
+  }
+
+  function collectSubscriptionsFromGuide() {
+    document
+      .querySelectorAll(
+        'ytd-guide-section-renderer ytd-guide-entry-renderer a[href^="/@"],' +
+          'ytd-guide-section-renderer ytd-guide-entry-renderer a[href^="/channel/"]'
+      )
+      .forEach((a) => {
+        const href = a.getAttribute("href").toLowerCase().split("?")[0];
+        subscribedChannels.add(href);
+      });
+  }
+
+  function refreshSubscriptions() {
+    fetch("/feed/channels", { credentials: "same-origin" })
+      .then((res) => res.text())
+      .then((html) => {
+        // Extract channel handles and IDs from the page response
+        const handleMatches = html.matchAll(/"(\/@[\w.-]+)"/g);
+        for (const m of handleMatches) {
+          subscribedChannels.add(m[1].toLowerCase());
+        }
+        const channelMatches = html.matchAll(
+          /"(\/channel\/UC[\w-]+)"/g
+        );
+        for (const m of channelMatches) {
+          subscribedChannels.add(m[1].toLowerCase());
+        }
+
+        chrome.storage.local.set({
+          subscribedChannels: Array.from(subscribedChannels),
+          subscribedChannelsUpdated: Date.now(),
+        });
+      })
+      .catch(() => {});
+  }
+
+  function getChannelPath(renderer) {
+    // Find the channel link within a video renderer
+    const link = renderer.querySelector(
+      'a[href^="/@"], a[href^="/channel/"]'
+    );
+    if (!link) return null;
+    return link.getAttribute("href").toLowerCase().split("?")[0];
+  }
+
+  function isCurrentVideoChannel(channelPath) {
+    // Don't filter the channel of the video you're currently watching
+    const ownerLink = document.querySelector(
+      "ytd-watch-metadata ytd-channel-name a, #owner a[href]"
+    );
+    if (!ownerLink) return false;
+    const currentPath = ownerLink
+      .getAttribute("href")
+      ?.toLowerCase()
+      .split("?")[0];
+    return currentPath === channelPath;
+  }
+
+  function filterUnsubscribed() {
+    if (!settings.subsOnly || subscribedChannels.size === 0) return;
+
+    // Sidebar "Up next" recommendations on watch pages
+    document
+      .querySelectorAll("#related ytd-compact-video-renderer")
+      .forEach((renderer) => {
+        if (renderer.dataset.fixYtChecked) return;
+        renderer.dataset.fixYtChecked = "1";
+
+        const ch = getChannelPath(renderer);
+        if (ch && !subscribedChannels.has(ch) && !isCurrentVideoChannel(ch)) {
+          renderer.remove();
+        }
+      });
+
+    // Endscreen overlay recommendations
+    document.querySelectorAll(".ytp-ce-element a[href]").forEach((link) => {
+      const href = link.getAttribute("href");
+      // Endscreen cards link to videos, not channels — hide all if subsOnly
+      // since we can't determine the channel from the card itself
+      if (href && !href.includes("/feed/") && !href.includes("/channel/")) {
+        const card = link.closest(".ytp-ce-element");
+        if (card) card.style.display = "none";
+      }
+    });
+
+    // Homepage/feed recommendations (if user somehow lands there)
+    document
+      .querySelectorAll(
+        "ytd-browse:not([page-subtype='subscriptions']) ytd-rich-item-renderer"
+      )
+      .forEach((renderer) => {
+        if (renderer.dataset.fixYtChecked) return;
+        renderer.dataset.fixYtChecked = "1";
+
+        const ch = getChannelPath(renderer);
+        if (ch && !subscribedChannels.has(ch)) {
+          renderer.remove();
+        }
+      });
+
+    // Search results
+    document
+      .querySelectorAll("ytd-search ytd-video-renderer")
+      .forEach((renderer) => {
+        if (renderer.dataset.fixYtChecked) return;
+        renderer.dataset.fixYtChecked = "1";
+
+        const ch = getChannelPath(renderer);
+        if (ch && !subscribedChannels.has(ch)) {
+          renderer.remove();
+        }
+      });
   }
 
   // Load settings and apply
@@ -310,11 +445,14 @@
         removeShortsElements();
         disableAutoplay();
         hijackHomeLinks();
+        collectSubscriptionsFromGuide();
+        filterUnsubscribed();
       });
       observer.observe(document.body, { childList: true, subtree: true });
       removeShortsElements();
       disableAutoplay();
       hijackHomeLinks();
+      loadCachedSubscriptions();
       startTimer();
     } else {
       requestAnimationFrame(startObserver);
@@ -329,6 +467,8 @@
     removeShortsElements();
     disableAutoplay();
     hijackHomeLinks();
+    collectSubscriptionsFromGuide();
+    filterUnsubscribed();
   });
 
   // Save timer when leaving
