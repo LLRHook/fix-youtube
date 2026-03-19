@@ -15,6 +15,7 @@
     weekdayLimitMinutes: 60,
     weekendLimitMinutes: 120,
     hideAlgorithmic: true,
+    declutter: true,
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
   };
@@ -24,6 +25,7 @@
     hideSidebar: "fix-yt-hide-sidebar",
     noAutoplay: "fix-yt-no-autoplay",
     hideAlgorithmic: "fix-yt-hide-algorithmic",
+    declutter: "fix-yt-declutter",
     hideTrending: "fix-yt-hide-trending",
   };
 
@@ -165,6 +167,33 @@
         if (el.dataset.fixYtAlgoChecked) return;
         el.dataset.fixYtAlgoChecked = "1";
         el.remove();
+      });
+  }
+
+  // Normalize ALL CAPS clickbait titles to sentence case
+  function normalizeClickbaitTitles() {
+    if (!settings.declutter) return;
+
+    document
+      .querySelectorAll(
+        "#video-title, #video-title-link, yt-formatted-string#video-title"
+      )
+      .forEach((el) => {
+        if (el.dataset.fixYtTitleNorm) return;
+        el.dataset.fixYtTitleNorm = "1";
+
+        const text = el.textContent.trim();
+        if (text.length < 5) return;
+
+        // Check if >60% of alphabetic chars are uppercase
+        const letters = text.replace(/[^a-zA-Z]/g, "");
+        if (letters.length === 0) return;
+        const upperCount = letters.replace(/[^A-Z]/g, "").length;
+        if (upperCount / letters.length < 0.6) return;
+
+        // Convert to sentence case: capitalize first letter of each sentence
+        const normalized = text.toLowerCase().replace(/(^\s*\w|[.!?]\s+\w)/g, (c) => c.toUpperCase());
+        el.textContent = normalized;
       });
   }
 
@@ -646,6 +675,7 @@
         removeShortsElements();
         removeAlgorithmicSections();
         filterBlockedChannels();
+        normalizeClickbaitTitles();
         disableAutoplay();
         hijackHomeLinks();
         collectSubscriptionsFromGuide();
@@ -672,6 +702,7 @@
     removeShortsElements();
     removeAlgorithmicSections();
     filterBlockedChannels();
+    normalizeClickbaitTitles();
     disableAutoplay();
     hijackHomeLinks();
     collectSubscriptionsFromGuide();

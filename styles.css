@@ -6,6 +6,7 @@
      .fix-yt-no-autoplay
      .fix-yt-hide-trending
      .fix-yt-hide-algorithmic
+     .fix-yt-declutter
      .fix-yt-grid-{2..6}
    ============================================= */
 
@@ -85,6 +86,32 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
 .fix-yt-hide-trending ytd-guide-section-renderer:has(a[href="/feed/trending"]),
 .fix-yt-hide-trending #endpoint[href="/feed/trending"],
 .fix-yt-hide-trending #endpoint[href="/feed/explore"] {
+  display: none !important;
+}
+
+/* ===== Thumbnail Declutter ===== */
+
+/* Overlay badges: NEW, LIVE, 4K, UPCOMING, PREMIERING */
+.fix-yt-declutter ytd-thumbnail-overlay-time-status-renderer[overlay-style="UPCOMING"],
+.fix-yt-declutter ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"],
+.fix-yt-declutter ytd-badge-supported-renderer,
+.fix-yt-declutter .badge-shape-wiz--thumbnail {
+  display: none !important;
+}
+
+/* Watch progress bar on thumbnails */
+.fix-yt-declutter ytd-thumbnail-overlay-resume-playback-renderer,
+.fix-yt-declutter #progress.ytd-thumbnail-overlay-resume-playback-renderer {
+  display: none !important;
+}
+
+/* View count overlay on thumbnails */
+.fix-yt-declutter ytd-thumbnail-overlay-bottom-panel-renderer {
+  display: none !important;
+}
+
+/* "Now playing" overlay */
+.fix-yt-declutter ytd-thumbnail-overlay-now-playing-renderer {
   display: none !important;
 }
 
