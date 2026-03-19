@@ -234,6 +234,48 @@
       font-size: 10px;
     }
 
+    /* Theme */
+    .color-swatches {
+      display: flex;
+      gap: 6px;
+      padding: 6px 0;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.active {
+      border-color: #fff;
+    }
+
+    .color-swatch[data-color=""] {
+      background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+      position: relative;
+    }
+
+    .color-swatch[data-color=""]::after {
+      content: "×";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 0 0 2px #000;
+    }
+
     /* Blocklist */
     .blocklist-input {
       display: flex;
@@ -506,6 +548,47 @@
         <button data-grid="4">4</button>
         <button data-grid="5">5</button>
         <button data-grid="6">6</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="toggle-label" style="padding: 4px 0 0;">
+      <span>Theme</span>
+      <small>Customize YouTube's appearance</small>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label"><span>Mode</span></div>
+      <div class="grid-options" id="themeModeOptions">
+        <button data-mode="auto" style="width:auto;padding:0 8px">Auto</button>
+        <button data-mode="dark" style="width:auto;padding:0 8px">Dark</button>
+        <button data-mode="light" style="width:auto;padding:0 8px">Light</button>
+      </div>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label"><span>Accent</span></div>
+      <div class="color-swatches" id="accentSwatches">
+        <div class="color-swatch" data-color="" title="Default"></div>
+        <div class="color-swatch" data-color="#ff4444" style="background:#ff4444" title="Red"></div>
+        <div class="color-swatch" data-color="#ff6d00" style="background:#ff6d00" title="Orange"></div>
+        <div class="color-swatch" data-color="#fdd835" style="background:#fdd835" title="Yellow"></div>
+        <div class="color-swatch" data-color="#00c853" style="background:#00c853" title="Green"></div>
+        <div class="color-swatch" data-color="#00b0ff" style="background:#00b0ff" title="Blue"></div>
+        <div class="color-swatch" data-color="#7c4dff" style="background:#7c4dff" title="Purple"></div>
+        <div class="color-swatch" data-color="#f50057" style="background:#f50057" title="Pink"></div>
+        <div class="color-swatch" data-color="#ffffff" style="background:#ffffff" title="White"></div>
+      </div>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label"><span>Font Size</span></div>
+      <div class="limit-options" id="fontScaleOptions">
+        <button data-scale="85">S</button>
+        <button data-scale="100">M</button>
+        <button data-scale="115">L</button>
+        <button data-scale="130">XL</button>
       </div>
     </div>
   </div>

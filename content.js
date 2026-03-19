@@ -16,6 +16,9 @@
     weekendLimitMinutes: 120,
     hideAlgorithmic: true,
     declutter: true,
+    themeAccentColor: "",
+    themeFontScale: 100,
+    themeMode: "auto",
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
   };
@@ -46,6 +49,75 @@
     if (settings.gridColumns >= 2 && settings.gridColumns <= 6) {
       root.classList.add("fix-yt-grid-" + settings.gridColumns);
     }
+
+    applyTheme();
+  }
+
+  // Apply custom theme (accent color, font scale, dark/light mode)
+  let themeStyleEl = null;
+
+  function applyTheme() {
+    const root = document.documentElement;
+
+    // Theme mode
+    if (settings.themeMode === "dark") {
+      root.setAttribute("dark", "");
+    } else if (settings.themeMode === "light") {
+      root.removeAttribute("dark");
+    }
+    // "auto" — don't touch the attribute, let YouTube decide
+
+    // Font scale
+    if (settings.themeFontScale && settings.themeFontScale !== 100) {
+      root.style.fontSize = settings.themeFontScale + "%";
+    } else {
+      root.style.removeProperty("font-size");
+    }
+
+    // Accent color
+    if (!themeStyleEl) {
+      themeStyleEl = document.createElement("style");
+      themeStyleEl.id = "fix-yt-theme";
+    }
+
+    if (settings.themeAccentColor) {
+      const c = settings.themeAccentColor;
+      themeStyleEl.textContent = `
+        html {
+          --yt-spec-call-to-action: ${c} !important;
+          --yt-spec-brand-button-background: ${c} !important;
+          --yt-spec-icon-active-other: ${c} !important;
+          --yt-spec-text-primary-inverse: #fff !important;
+        }
+        /* Subscribe button */
+        ytd-subscribe-button-renderer tp-yt-paper-button,
+        ytd-subscribe-button-renderer button {
+          background-color: ${c} !important;
+        }
+        /* Player progress bar */
+        .ytp-play-progress, .ytp-swatch-background-color {
+          background: ${c} !important;
+        }
+        /* Active sidebar entry */
+        ytd-guide-entry-renderer[active] {
+          background-color: color-mix(in srgb, ${c} 15%, transparent) !important;
+        }
+        ytd-guide-entry-renderer[active] .title {
+          color: ${c} !important;
+        }
+      `;
+    } else {
+      themeStyleEl.textContent = "";
+    }
+
+    function insertStyle() {
+      if (document.head) {
+        if (!themeStyleEl.parentNode) document.head.appendChild(themeStyleEl);
+      } else {
+        requestAnimationFrame(insertStyle);
+      }
+    }
+    insertStyle();
   }
 
   // Redirect youtube.com/ to subscriptions

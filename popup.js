@@ -8,6 +8,9 @@ const DEFAULTS = {
   redirectHome: true,
   hideAlgorithmic: true,
   declutter: true,
+  themeAccentColor: "",
+  themeFontScale: 100,
+  themeMode: "auto",
   subsOnly: true,
   gridColumns: 0,
   dailyTimerEnabled: true,
@@ -50,6 +53,9 @@ chrome.storage.sync.get(DEFAULTS, (settings) => {
   updateLimitButtons("weekend", settings.weekendLimitMinutes);
   highlightActiveSchedule();
   updateBreakButtons(settings.breakIntervalMinutes);
+  updateThemeMode(settings.themeMode);
+  updateAccentSwatches(settings.themeAccentColor);
+  updateFontScale(settings.themeFontScale);
   updateTimerDisplay();
 });
 
@@ -172,6 +178,59 @@ function updateTimerDisplay() {
 
 // Refresh the timer display every second while popup is open
 setInterval(updateTimerDisplay, 1000);
+
+// ===== Theme =====
+
+// Mode buttons
+document.querySelectorAll("#themeModeOptions button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const mode = btn.dataset.mode;
+    chrome.storage.sync.set({ themeMode: mode });
+    currentSettings.themeMode = mode;
+    updateThemeMode(mode);
+  });
+});
+
+function updateThemeMode(active) {
+  document.querySelectorAll("#themeModeOptions button").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.mode === active);
+  });
+}
+
+// Accent color swatches
+document.querySelectorAll("#accentSwatches .color-swatch").forEach((swatch) => {
+  swatch.addEventListener("click", () => {
+    const color = swatch.dataset.color;
+    chrome.storage.sync.set({ themeAccentColor: color });
+    currentSettings.themeAccentColor = color;
+    updateAccentSwatches(color);
+  });
+});
+
+function updateAccentSwatches(active) {
+  document.querySelectorAll("#accentSwatches .color-swatch").forEach((s) => {
+    s.classList.toggle("active", s.dataset.color === active);
+  });
+}
+
+// Font scale buttons
+document.querySelectorAll("#fontScaleOptions button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const scale = parseInt(btn.dataset.scale, 10);
+    chrome.storage.sync.set({ themeFontScale: scale });
+    currentSettings.themeFontScale = scale;
+    updateFontScale(scale);
+  });
+});
+
+function updateFontScale(active) {
+  document.querySelectorAll("#fontScaleOptions button").forEach((btn) => {
+    btn.classList.toggle(
+      "active",
+      parseInt(btn.dataset.scale, 10) === active
+    );
+  });
+}
 
 // ===== Channel Blocklist =====
 
