@@ -4,7 +4,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 
 ## Features
 
-- **Remove Shorts** — Hides Shorts shelves, sidebar links, search results, channel tabs, and notifications everywhere on YouTube
+- **Remove Shorts** — Hides Shorts shelves, sidebar links, search results, channel tabs, and notifications everywhere on YouTube. Redirects `/shorts/` URLs to the normal video player.
 - **Redirect Home to Subscriptions** — The YouTube logo and all home navigation points to `/feed/subscriptions` instead. The homepage is dead to you.
 - **Hide Suggested Videos** — Removes the related/recommended videos sidebar on watch pages and endscreen suggestions. The player expands to fill the space.
 - **Disable Autoplay** — Turns off auto-play next and hides the toggle so YouTube can't re-enable it
@@ -102,7 +102,7 @@ Features under consideration for future releases:
 
 ### v3
 
-- [ ] **Redirect Shorts to Watch** — Rewrite /shorts/ URLs to play as normal videos in the standard player
+- [x] **Redirect Shorts to Watch** — Rewrite /shorts/ URLs to play as normal videos in the standard player
 - [ ] **Hide Notification Badge** — Remove the red notification count from the bell icon
 - [ ] **Auto Scroll to Player** — On watch pages, auto-scroll so the video player is flush with the top
 - [ ] **Pause on Tab Switch** — Auto-pause video when switching to another tab, resume when returning
