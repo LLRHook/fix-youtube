@@ -19,6 +19,7 @@
     themeAccentColor: "",
     themeFontScale: 100,
     themeMode: "auto",
+    playbackSpeed: 0, // 0 = YouTube default
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
   };
@@ -277,6 +278,22 @@
     );
     if (toggle && toggle.getAttribute("aria-checked") === "true") {
       toggle.click();
+    }
+  }
+
+  // Force playback speed on the video element
+  let lastSpeedVideoSrc = "";
+
+  function applyPlaybackSpeed() {
+    if (!settings.playbackSpeed) return;
+    const video = document.querySelector("video");
+    if (!video) return;
+
+    // Only set once per video source to avoid fighting the user
+    if (video.src === lastSpeedVideoSrc) return;
+    if (video.readyState >= 1) {
+      video.playbackRate = settings.playbackSpeed;
+      lastSpeedVideoSrc = video.src;
     }
   }
 
@@ -840,6 +857,7 @@
         filterBlockedChannels();
         normalizeClickbaitTitles();
         disableAutoplay();
+        applyPlaybackSpeed();
         hijackHomeLinks();
         collectSubscriptionsFromGuide();
         filterUnsubscribed();
@@ -868,6 +886,8 @@
     filterBlockedChannels();
     normalizeClickbaitTitles();
     disableAutoplay();
+    lastSpeedVideoSrc = "";
+    applyPlaybackSpeed();
     hijackHomeLinks();
     collectSubscriptionsFromGuide();
     filterUnsubscribed();

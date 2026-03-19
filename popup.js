@@ -8,6 +8,7 @@ const DEFAULTS = {
   redirectHome: true,
   hideAlgorithmic: true,
   declutter: true,
+  playbackSpeed: 0,
   themeAccentColor: "",
   themeFontScale: 100,
   themeMode: "auto",
@@ -53,6 +54,7 @@ chrome.storage.sync.get(DEFAULTS, (settings) => {
   updateLimitButtons("weekend", settings.weekendLimitMinutes);
   highlightActiveSchedule();
   updateBreakButtons(settings.breakIntervalMinutes);
+  updateSpeedButtons(settings.playbackSpeed);
   updateThemeMode(settings.themeMode);
   updateAccentSwatches(settings.themeAccentColor);
   updateFontScale(settings.themeFontScale);
@@ -178,6 +180,26 @@ function updateTimerDisplay() {
 
 // Refresh the timer display every second while popup is open
 setInterval(updateTimerDisplay, 1000);
+
+// ===== Playback Speed =====
+
+document.querySelectorAll("#speedOptions button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const value = parseFloat(btn.dataset.speed);
+    chrome.storage.sync.set({ playbackSpeed: value });
+    currentSettings.playbackSpeed = value;
+    updateSpeedButtons(value);
+  });
+});
+
+function updateSpeedButtons(active) {
+  document.querySelectorAll("#speedOptions button").forEach((btn) => {
+    btn.classList.toggle(
+      "active",
+      parseFloat(btn.dataset.speed) === active
+    );
+  });
+}
 
 // ===== Theme =====
 
