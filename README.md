@@ -11,10 +11,11 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
 - **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
-- **Daily Usage Timer** — Configurable daily time limit (30m / 1h / 1.5h / 2h) with:
+- **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
   - Live countdown clock overlay on the page
   - Color-coded warnings (orange at 25%, red pulsing at 0%)
   - Full-screen blocker when time runs out — pauses video and locks the page
+  - Per-day schedules: different limits for weekdays vs. weekends (default 1h / 2h)
   - Resets at midnight automatically
 - **Keyboard Shortcuts** — Quick toggles without opening the popup:
   - `Alt+S` — Toggle suggested videos sidebar
@@ -51,7 +52,7 @@ Features under consideration for future releases:
 - [ ] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
 - [ ] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
-- [ ] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
+- [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
 - [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
 - [ ] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
