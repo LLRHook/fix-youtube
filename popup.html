@@ -363,6 +363,37 @@
       font-style: italic;
     }
 
+    /* Focus Mode */
+    .focus-section {
+      padding: 10px 16px;
+      border-bottom: 1px solid #333;
+    }
+
+    .focus-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .focus-label span {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ff4444;
+    }
+
+    .focus-label small {
+      font-size: 10px;
+      color: #777;
+      display: block;
+      margin-top: 1px;
+    }
+
+    .focus-section.active {
+      background: #2a1010;
+      border-bottom-color: #ff4444;
+    }
+
     .action-status {
       text-align: center;
       font-size: 11px;
@@ -377,6 +408,19 @@
     <h1>Fix YouTube</h1>
     <p>Take back control of your feed</p>
   </header>
+
+  <div class="focus-section" id="focusSection">
+    <div class="focus-toggle">
+      <div class="toggle-label focus-label">
+        <span>Focus Mode</span>
+        <small>All distractions off · Alt+D</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="focusModeEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
 
   <div class="section">
     <div class="toggle-row">

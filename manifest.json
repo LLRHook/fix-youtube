@@ -44,6 +44,10 @@
     "toggle-timer": {
       "suggested_key": { "default": "Alt+T" },
       "description": "Toggle daily usage timer"
+    },
+    "toggle-focus": {
+      "suggested_key": { "default": "Alt+D" },
+      "description": "Toggle Focus Mode"
     }
   },
   "icons": {

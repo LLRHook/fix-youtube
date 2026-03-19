@@ -8,6 +8,7 @@ const DEFAULTS = {
   redirectHome: true,
   hideAlgorithmic: true,
   declutter: true,
+  focusModeEnabled: false,
   playbackSpeed: 0,
   themeAccentColor: "",
   themeFontScale: 100,
@@ -180,6 +181,88 @@ function updateTimerDisplay() {
 
 // Refresh the timer display every second while popup is open
 setInterval(updateTimerDisplay, 1000);
+
+// ===== Focus Mode =====
+
+const FOCUS_KEYS = [
+  "hideShorts",
+  "hideSidebar",
+  "noAutoplay",
+  "hideTrending",
+  "hideAlgorithmic",
+  "declutter",
+  "subsOnly",
+];
+
+function updateFocusUI(enabled) {
+  document.getElementById("focusModeEnabled").checked = enabled;
+  document.getElementById("focusSection").classList.toggle("active", enabled);
+}
+
+// Load initial state
+chrome.storage.sync.get({ focusModeEnabled: false }, (data) => {
+  updateFocusUI(data.focusModeEnabled);
+});
+
+document.getElementById("focusModeEnabled").addEventListener("change", (e) => {
+  if (e.target.checked) {
+    // Snapshot current settings before overriding
+    const snapshot = {};
+    for (const key of FOCUS_KEYS) {
+      snapshot[key] = currentSettings[key];
+    }
+    chrome.storage.local.set({ preFocusSettings: snapshot });
+
+    const overrides = { focusModeEnabled: true };
+    for (const key of FOCUS_KEYS) {
+      overrides[key] = true;
+    }
+    chrome.storage.sync.set(overrides);
+    currentSettings.focusModeEnabled = true;
+
+    // Update the individual toggles in the UI
+    for (const key of FOCUS_KEYS) {
+      const el = document.getElementById(key);
+      if (el) el.checked = true;
+      currentSettings[key] = true;
+    }
+    updateFocusUI(true);
+  } else {
+    // Restore pre-focus settings
+    chrome.storage.local.get({ preFocusSettings: {} }, (data) => {
+      const restore = data.preFocusSettings;
+      restore.focusModeEnabled = false;
+      chrome.storage.sync.set(restore);
+      currentSettings.focusModeEnabled = false;
+
+      for (const key of FOCUS_KEYS) {
+        if (key in restore) {
+          const el = document.getElementById(key);
+          if (el) el.checked = restore[key];
+          currentSettings[key] = restore[key];
+        }
+      }
+      updateFocusUI(false);
+    });
+  }
+});
+
+// React to external changes (e.g. from Alt+D shortcut)
+chrome.storage.onChanged.addListener((changes) => {
+  if ("focusModeEnabled" in changes) {
+    const enabled = changes.focusModeEnabled.newValue;
+    updateFocusUI(enabled);
+
+    // Sync individual toggles in the UI
+    chrome.storage.sync.get(FOCUS_KEYS, (data) => {
+      for (const key of FOCUS_KEYS) {
+        const el = document.getElementById(key);
+        if (el) el.checked = data[key];
+        currentSettings[key] = data[key];
+      }
+    });
+  }
+});
 
 // ===== Playback Speed =====
 
