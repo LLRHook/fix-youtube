@@ -9,6 +9,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Suggested Videos** — Removes the related/recommended videos sidebar on watch pages and endscreen suggestions. The player expands to fill the space.
 - **Disable Autoplay** — Turns off auto-play next and hides the toggle so YouTube can't re-enable it
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
+- **Channel Blocklist** — Permanently hide videos from specific channels everywhere. Add channels by handle (`@channelname`) from the popup. Blocks apply across all tabs instantly.
 - **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
 - **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
@@ -51,7 +52,7 @@ Features under consideration for future releases:
 
 - [ ] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
 - [ ] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
-- [ ] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
+- [x] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
 - [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
 - [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
