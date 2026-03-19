@@ -21,6 +21,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - `Alt+F` — Toggle subscriptions-only filter
   - `Alt+T` — Toggle daily usage timer
   - Customizable via `chrome://extensions/shortcuts`
+- **Break Reminders** — Gentle nudge after continuous watching (15m / 25m / 45m / 1h). Pauses video, shows a dismissable overlay. Resets when you leave the tab for 30+ seconds or dismiss the reminder.
 - **Export/Import Settings** — Download your configuration as a JSON file, share it, or restore it on another machine. Import validates keys so unknown data is safely ignored.
 - **Popup Settings Panel** — Dark-themed control panel with toggles for every feature. Changes apply instantly, no reload needed.
 
@@ -51,7 +52,7 @@ Features under consideration for future releases:
 - [ ] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
 - [ ] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
-- [ ] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
+- [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
 - [ ] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
 - [ ] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
