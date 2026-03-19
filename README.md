@@ -100,6 +100,14 @@ Features under consideration for future releases:
 - [x] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
 - [x] **Cinema Mode Default** — Always open videos in theater/cinema mode
 
+### v3
+
+- [ ] **Redirect Shorts to Watch** — Rewrite /shorts/ URLs to play as normal videos in the standard player
+- [ ] **Hide Notification Badge** — Remove the red notification count from the bell icon
+- [ ] **Auto Scroll to Player** — On watch pages, auto-scroll so the video player is flush with the top
+- [ ] **Pause on Tab Switch** — Auto-pause video when switching to another tab, resume when returning
+- [ ] **Confirm Before Closing** — Warn before closing a tab with a playing video
+
 ## Tech Stack
 
 - Manifest V3 Chrome Extension
