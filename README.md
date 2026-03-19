@@ -11,6 +11,10 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
 - **Channel Blocklist** — Permanently hide videos from specific channels everywhere. Add channels by handle (`@channelname`) from the popup. Blocks apply across all tabs instantly.
 - **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
+- **Custom YouTube Theming** — Personalize YouTube's appearance:
+  - Accent color: 8 preset colors (red, orange, yellow, green, blue, purple, pink, white) or YouTube default
+  - Font size: S / M / L / XL (85% to 130% scaling)
+  - Theme mode: force Dark, Light, or leave on Auto
 - **Thumbnail Declutter** — Hides overlay badges (NEW, LIVE, 4K), watch progress bars, and view count overlays on thumbnails. Normalizes ALL CAPS clickbait titles to sentence case when >60% of letters are uppercase.
 - **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
@@ -51,7 +55,7 @@ The daily timer only counts seconds while the YouTube tab is visible (`document.
 
 Features under consideration for future releases:
 
-- [ ] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
+- [x] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
 - [ ] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
 - [x] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
