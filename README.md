@@ -20,6 +20,10 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Comments** — Toggle to completely hide the comments section on watch pages.
 - **Disable Ambient Mode** — Turns off YouTube's ambient glow effect behind the video player.
 - **Cinema Mode Default** — Automatically activates theater/cinema mode on every video.
+- **Hide Notification Badge** — Removes the red notification count from the bell icon.
+- **Auto Scroll to Player** — Automatically scrolls the video player to the top of the page on every navigation.
+- **Pause on Tab Switch** — Pauses the video when you switch to another tab, resumes when you return.
+- **Confirm Before Closing** — Browser warning before closing a tab with a playing video.
 - **Playback Speed Default** — Force a default playback speed (1x / 1.25x / 1.5x / 1.75x / 2x) on all videos. Applied once per video so manual changes aren't overridden.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
 - **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
@@ -103,10 +107,10 @@ Features under consideration for future releases:
 ### v3
 
 - [x] **Redirect Shorts to Watch** — Rewrite /shorts/ URLs to play as normal videos in the standard player
-- [ ] **Hide Notification Badge** — Remove the red notification count from the bell icon
-- [ ] **Auto Scroll to Player** — On watch pages, auto-scroll so the video player is flush with the top
-- [ ] **Pause on Tab Switch** — Auto-pause video when switching to another tab, resume when returning
-- [ ] **Confirm Before Closing** — Warn before closing a tab with a playing video
+- [x] **Hide Notification Badge** — Remove the red notification count from the bell icon
+- [x] **Auto Scroll to Player** — On watch pages, auto-scroll so the video player is flush with the top
+- [x] **Pause on Tab Switch** — Auto-pause video when switching to another tab, resume when returning
+- [x] **Confirm Before Closing** — Warn before closing a tab with a playing video
 
 ## Tech Stack
 
