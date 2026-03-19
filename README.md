@@ -10,6 +10,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Disable Autoplay** — Turns off auto-play next and hides the toggle so YouTube can't re-enable it
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
 - **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
+- **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
 - **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
   - Live countdown clock overlay on the page
@@ -55,7 +56,7 @@ Features under consideration for future releases:
 - [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
 - [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
-- [ ] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
+- [x] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
 - [ ] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
 - [x] **Export/Import Settings** — Share your configuration across devices or with friends
 
