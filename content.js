@@ -607,6 +607,7 @@
         const remaining = Math.max(0, limitSeconds - elapsed);
         updateClock(remaining, limitSeconds);
         tickBreakReminder();
+        tickWatchTracking();
 
         // Save every 5 seconds to reduce writes
         if (elapsed % 5 === 0) {
@@ -699,6 +700,96 @@
     }
   }
 
+  // ===== Watch History Tracking =====
+
+  let currentWatch = null;
+
+  function getVideoId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("v");
+  }
+
+  function startWatchTracking() {
+    const videoId = getVideoId();
+    if (!videoId) {
+      saveCurrentWatch();
+      currentWatch = null;
+      return;
+    }
+
+    // Same video — keep tracking
+    if (currentWatch && currentWatch.videoId === videoId) return;
+
+    // New video — save old, start new
+    saveCurrentWatch();
+
+    const titleEl = document.querySelector(
+      "ytd-watch-metadata yt-formatted-string.ytd-watch-metadata, h1.ytd-watch-metadata yt-formatted-string"
+    );
+    const channelLink = document.querySelector(
+      "ytd-watch-metadata ytd-channel-name a, #owner a[href]"
+    );
+    const channelNameEl = document.querySelector(
+      "ytd-watch-metadata ytd-channel-name yt-formatted-string, #owner ytd-channel-name yt-formatted-string"
+    );
+
+    currentWatch = {
+      videoId,
+      title: titleEl ? titleEl.textContent.trim() : "",
+      channel: channelLink
+        ? channelLink.getAttribute("href").toLowerCase().split("?")[0]
+        : "",
+      channelName: channelNameEl ? channelNameEl.textContent.trim() : "",
+      startedAt: Date.now(),
+      watchedSeconds: 0,
+    };
+  }
+
+  function tickWatchTracking() {
+    if (!currentWatch) return;
+    if (document.visibilityState !== "visible") return;
+    currentWatch.watchedSeconds++;
+  }
+
+  function saveCurrentWatch() {
+    if (!currentWatch || currentWatch.watchedSeconds < 5) return;
+
+    // Fill in title/channel if they weren't ready at start
+    if (!currentWatch.title) {
+      const titleEl = document.querySelector(
+        "ytd-watch-metadata yt-formatted-string.ytd-watch-metadata, h1.ytd-watch-metadata yt-formatted-string"
+      );
+      if (titleEl) currentWatch.title = titleEl.textContent.trim();
+    }
+    if (!currentWatch.channelName) {
+      const channelNameEl = document.querySelector(
+        "ytd-watch-metadata ytd-channel-name yt-formatted-string, #owner ytd-channel-name yt-formatted-string"
+      );
+      if (channelNameEl)
+        currentWatch.channelName = channelNameEl.textContent.trim();
+    }
+
+    const entry = {
+      videoId: currentWatch.videoId,
+      title: currentWatch.title,
+      channel: currentWatch.channel,
+      channelName: currentWatch.channelName,
+      timestamp: currentWatch.startedAt,
+      watchedSeconds: currentWatch.watchedSeconds,
+    };
+
+    chrome.storage.local.get({ watchHistory: [] }, (data) => {
+      const history = data.watchHistory;
+      history.push(entry);
+
+      // Prune entries older than 30 days
+      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      const pruned = history.filter((e) => e.timestamp >= cutoff);
+
+      chrome.storage.local.set({ watchHistory: pruned });
+    });
+  }
+
   // ===== Init & Listeners =====
 
   // Listen for settings changes from popup
@@ -761,6 +852,7 @@
       loadBlockedChannels();
       loadCachedSubscriptions();
       startTimer();
+      startWatchTracking();
     } else {
       requestAnimationFrame(startObserver);
     }
@@ -779,10 +871,12 @@
     hijackHomeLinks();
     collectSubscriptionsFromGuide();
     filterUnsubscribed();
+    startWatchTracking();
   });
 
-  // Save timer when leaving
+  // Save state when leaving
   window.addEventListener("beforeunload", () => {
     loadTimerState((seconds) => saveTimerSeconds(seconds));
+    saveCurrentWatch();
   });
 })();

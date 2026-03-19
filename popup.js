@@ -301,6 +301,10 @@ function showStatus(msg) {
   }, 3000);
 }
 
+document.getElementById("dashboardBtn").addEventListener("click", () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("dashboard.html") });
+});
+
 document.getElementById("exportBtn").addEventListener("click", () => {
   chrome.storage.sync.get(null, (data) => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {

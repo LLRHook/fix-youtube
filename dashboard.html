@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fix YouTube — Watch History</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      padding: 32px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 24px; color: #fff; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #666; margin-bottom: 28px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .top-channels {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .channel-chip {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .channel-chip .ch-name { color: #e0e0e0; }
+    .channel-chip .ch-time { color: #888; font-size: 11px; }
+
+    .history-list { margin-bottom: 32px; }
+
+    .history-entry {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .entry-time {
+      flex-shrink: 0;
+      width: 56px;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 600;
+      color: #ff4444;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .entry-info { flex: 1; min-width: 0; }
+
+    .entry-title {
+      font-size: 14px;
+      color: #e0e0e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .entry-meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .entry-date {
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #555;
+      width: 80px;
+      text-align: right;
+    }
+
+    .empty {
+      text-align: center;
+      color: #555;
+      padding: 40px 0;
+      font-style: italic;
+    }
+
+    .clear-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 20px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: transparent;
+      color: #888;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .clear-btn:hover { border-color: #ff4444; color: #ff4444; }
+  </style>
+</head>
+<body>
+  <h1>Watch History</h1>
+  <p class="subtitle">Last 30 days of tracked viewing</p>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="todayTime">—</div>
+      <div class="stat-label">Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="weekTime">—</div>
+      <div class="stat-label">This Week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="totalVideos">—</div>
+      <div class="stat-label">Videos (30 days)</div>
+    </div>
+  </div>
+
+  <h2>Top Channels</h2>
+  <div class="top-channels" id="topChannels"></div>
+
+  <h2>Recent</h2>
+  <div class="history-list" id="historyList"></div>
+
+  <button class="clear-btn" id="clearBtn">Clear all history</button>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
