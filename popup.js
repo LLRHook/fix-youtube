@@ -171,6 +171,65 @@ function updateTimerDisplay() {
 // Refresh the timer display every second while popup is open
 setInterval(updateTimerDisplay, 1000);
 
+// ===== Channel Blocklist =====
+
+function renderBlocklist(channels) {
+  const container = document.getElementById("blocklist");
+  if (channels.length === 0) {
+    container.innerHTML = '<div class="blocklist-empty">No blocked channels</div>';
+    return;
+  }
+  container.innerHTML = channels
+    .map(
+      (ch) =>
+        `<div class="blocklist-item"><span>${ch}</span><button data-channel="${ch}">&times;</button></div>`
+    )
+    .join("");
+
+  container.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const toRemove = btn.dataset.channel;
+      chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
+        const updated = data.blockedChannels.filter((c) => c !== toRemove);
+        chrome.storage.sync.set({ blockedChannels: updated });
+        renderBlocklist(updated);
+      });
+    });
+  });
+}
+
+chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
+  renderBlocklist(data.blockedChannels);
+});
+
+document.getElementById("blockAddBtn").addEventListener("click", addChannel);
+document.getElementById("blockInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addChannel();
+});
+
+function addChannel() {
+  const input = document.getElementById("blockInput");
+  let value = input.value.trim().toLowerCase();
+  if (!value) return;
+
+  // Normalize: ensure it starts with /@
+  if (value.startsWith("@")) value = "/" + value;
+  if (!value.startsWith("/@") && !value.startsWith("/channel/")) {
+    value = "/@" + value;
+  }
+
+  chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
+    if (data.blockedChannels.includes(value)) {
+      input.value = "";
+      return;
+    }
+    const updated = [...data.blockedChannels, value];
+    chrome.storage.sync.set({ blockedChannels: updated });
+    renderBlocklist(updated);
+    input.value = "";
+  });
+}
+
 // ===== Export / Import =====
 
 function showStatus(msg) {

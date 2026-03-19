@@ -179,6 +179,35 @@
     }
   }
 
+  // ===== Channel Blocklist =====
+
+  let blockedChannels = new Set();
+
+  function loadBlockedChannels() {
+    chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
+      blockedChannels = new Set(
+        data.blockedChannels.map((c) => c.toLowerCase())
+      );
+    });
+  }
+
+  function filterBlockedChannels() {
+    if (blockedChannels.size === 0) return;
+
+    const selectors =
+      "ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, ytd-grid-video-renderer";
+
+    document.querySelectorAll(selectors).forEach((renderer) => {
+      if (renderer.dataset.fixYtBlockChecked) return;
+      renderer.dataset.fixYtBlockChecked = "1";
+
+      const ch = getChannelPath(renderer);
+      if (ch && blockedChannels.has(ch)) {
+        renderer.remove();
+      }
+    });
+  }
+
   // ===== Subscribed Channels Filter =====
 
   let subscribedChannels = new Set();
@@ -580,6 +609,13 @@
     }
     applyClasses();
 
+    // React to blocklist changes
+    if ("blockedChannels" in changes) {
+      blockedChannels = new Set(
+        (changes.blockedChannels.newValue || []).map((c) => c.toLowerCase())
+      );
+    }
+
     // React to timer setting changes
     if (
       "dailyTimerEnabled" in changes ||
@@ -609,6 +645,7 @@
       const observer = new MutationObserver(() => {
         removeShortsElements();
         removeAlgorithmicSections();
+        filterBlockedChannels();
         disableAutoplay();
         hijackHomeLinks();
         collectSubscriptionsFromGuide();
@@ -619,6 +656,7 @@
       removeAlgorithmicSections();
       disableAutoplay();
       hijackHomeLinks();
+      loadBlockedChannels();
       loadCachedSubscriptions();
       startTimer();
     } else {
@@ -633,6 +671,7 @@
     redirectHomeToSubscriptions();
     removeShortsElements();
     removeAlgorithmicSections();
+    filterBlockedChannels();
     disableAutoplay();
     hijackHomeLinks();
     collectSubscriptionsFromGuide();
