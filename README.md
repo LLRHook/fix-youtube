@@ -17,6 +17,9 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - Theme mode: force Dark, Light, or leave on Auto
 - **Thumbnail Declutter** — Hides overlay badges (NEW, LIVE, 4K), watch progress bars, and view count overlays on thumbnails. Normalizes ALL CAPS clickbait titles to sentence case when >60% of letters are uppercase.
 - **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
+- **Hide Comments** — Toggle to completely hide the comments section on watch pages.
+- **Disable Ambient Mode** — Turns off YouTube's ambient glow effect behind the video player.
+- **Cinema Mode Default** — Automatically activates theater/cinema mode on every video.
 - **Playback Speed Default** — Force a default playback speed (1x / 1.25x / 1.5x / 1.75x / 2x) on all videos. Applied once per video so manual changes aren't overridden.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
 - **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
@@ -93,9 +96,9 @@ Features under consideration for future releases:
 
 - [x] **Focus Mode** — One-click toggle that enables all distraction blockers at once for deep focus sessions
 - [x] **Playback Speed Default** — Force a default playback speed (1x–2x) on all videos
-- [ ] **Hide Comments** — Toggle to hide the comments section entirely
-- [ ] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
-- [ ] **Cinema Mode Default** — Always open videos in theater/cinema mode
+- [x] **Hide Comments** — Toggle to hide the comments section entirely
+- [x] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
+- [x] **Cinema Mode Default** — Always open videos in theater/cinema mode
 
 ## Tech Stack
 
