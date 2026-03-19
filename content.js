@@ -12,7 +12,8 @@
     subsOnly: true,
     gridColumns: 0, // 0 = YouTube default
     dailyTimerEnabled: true,
-    dailyLimitMinutes: 60,
+    weekdayLimitMinutes: 60,
+    weekendLimitMinutes: 120,
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
   };
@@ -252,6 +253,17 @@
 
   // ===== Daily Timer =====
 
+  function isWeekend() {
+    const day = new Date().getDay();
+    return day === 0 || day === 6;
+  }
+
+  function getEffectiveLimitMinutes() {
+    return isWeekend()
+      ? settings.weekendLimitMinutes
+      : settings.weekdayLimitMinutes;
+  }
+
   let timerInterval = null;
   let blockerElement = null;
   let clockElement = null;
@@ -366,7 +378,7 @@
       return;
     }
 
-    const limitSeconds = settings.dailyLimitMinutes * 60;
+    const limitSeconds = getEffectiveLimitMinutes() * 60;
     ensureClock();
 
     loadTimerState((seconds) => {
@@ -498,7 +510,11 @@
     applyClasses();
 
     // React to timer setting changes
-    if ("dailyTimerEnabled" in changes || "dailyLimitMinutes" in changes) {
+    if (
+      "dailyTimerEnabled" in changes ||
+      "weekdayLimitMinutes" in changes ||
+      "weekendLimitMinutes" in changes
+    ) {
       stopTimer();
       removeBlocker();
       removeClock();

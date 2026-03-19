@@ -225,6 +225,15 @@
       color: #fff;
     }
 
+    .schedule-active {
+      color: #ff4444 !important;
+    }
+
+    .schedule-active::after {
+      content: " \2190";
+      font-size: 10px;
+    }
+
     .action-status {
       text-align: center;
       font-size: 11px;
@@ -327,9 +336,21 @@
 
     <div class="grid-row">
       <div class="toggle-label">
-        <span>Daily Limit</span>
+        <span id="weekdayLabel">Weekday Limit</span>
       </div>
-      <div class="limit-options">
+      <div class="limit-options" id="weekdayLimits">
+        <button data-limit="30">30m</button>
+        <button data-limit="60">1h</button>
+        <button data-limit="90">1.5h</button>
+        <button data-limit="120">2h</button>
+      </div>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label">
+        <span id="weekendLabel">Weekend Limit</span>
+      </div>
+      <div class="limit-options" id="weekendLimits">
         <button data-limit="30">30m</button>
         <button data-limit="60">1h</button>
         <button data-limit="90">1.5h</button>

@@ -9,7 +9,8 @@ const DEFAULTS = {
   subsOnly: true,
   gridColumns: 0,
   dailyTimerEnabled: true,
-  dailyLimitMinutes: 60,
+  weekdayLimitMinutes: 60,
+  weekendLimitMinutes: 120,
   breakReminderEnabled: true,
   breakIntervalMinutes: 25,
 };
@@ -41,7 +42,9 @@ chrome.storage.sync.get(DEFAULTS, (settings) => {
   }
 
   updateGridButtons(settings.gridColumns);
-  updateLimitButtons(settings.dailyLimitMinutes);
+  updateLimitButtons("weekday", settings.weekdayLimitMinutes);
+  updateLimitButtons("weekend", settings.weekendLimitMinutes);
+  highlightActiveSchedule();
   updateBreakButtons(settings.breakIntervalMinutes);
   updateTimerDisplay();
 });
@@ -55,13 +58,23 @@ document.querySelectorAll(".grid-options button").forEach((btn) => {
   });
 });
 
-// Daily limit buttons
-document.querySelectorAll(".limit-options button").forEach((btn) => {
+// Daily limit buttons (weekday + weekend)
+document.querySelectorAll("#weekdayLimits button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const value = parseInt(btn.dataset.limit, 10);
-    chrome.storage.sync.set({ dailyLimitMinutes: value });
-    currentSettings.dailyLimitMinutes = value;
-    updateLimitButtons(value);
+    chrome.storage.sync.set({ weekdayLimitMinutes: value });
+    currentSettings.weekdayLimitMinutes = value;
+    updateLimitButtons("weekday", value);
+    updateTimerDisplay();
+  });
+});
+
+document.querySelectorAll("#weekendLimits button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const value = parseInt(btn.dataset.limit, 10);
+    chrome.storage.sync.set({ weekendLimitMinutes: value });
+    currentSettings.weekendLimitMinutes = value;
+    updateLimitButtons("weekend", value);
     updateTimerDisplay();
   });
 });
@@ -91,13 +104,31 @@ function updateGridButtons(active) {
   });
 }
 
-function updateLimitButtons(active) {
-  document.querySelectorAll(".limit-options button").forEach((btn) => {
+function updateLimitButtons(group, active) {
+  const id = group === "weekday" ? "#weekdayLimits" : "#weekendLimits";
+  document.querySelectorAll(id + " button").forEach((btn) => {
     btn.classList.toggle(
       "active",
       parseInt(btn.dataset.limit, 10) === active
     );
   });
+}
+
+function isWeekend() {
+  const day = new Date().getDay();
+  return day === 0 || day === 6;
+}
+
+function highlightActiveSchedule() {
+  const wdLabel = document.getElementById("weekdayLabel");
+  const weLabel = document.getElementById("weekendLabel");
+  if (isWeekend()) {
+    weLabel.classList.add("schedule-active");
+    wdLabel.classList.remove("schedule-active");
+  } else {
+    wdLabel.classList.add("schedule-active");
+    weLabel.classList.remove("schedule-active");
+  }
 }
 
 function formatTime(totalSeconds) {
@@ -115,7 +146,10 @@ function updateTimerDisplay() {
   chrome.storage.local.get(["timerDate", "timerSeconds"], (data) => {
     const usedSeconds =
       data.timerDate === today ? data.timerSeconds || 0 : 0;
-    const limitSeconds = currentSettings.dailyLimitMinutes * 60;
+    const effectiveLimit = isWeekend()
+      ? currentSettings.weekendLimitMinutes
+      : currentSettings.weekdayLimitMinutes;
+    const limitSeconds = effectiveLimit * 60;
     const remaining = Math.max(0, limitSeconds - usedSeconds);
 
     const el = document.getElementById("timerRemaining");
@@ -197,8 +231,10 @@ document.getElementById("importFile").addEventListener("change", (e) => {
           }
         }
         if ("gridColumns" in cleaned) updateGridButtons(cleaned.gridColumns);
-        if ("dailyLimitMinutes" in cleaned)
-          updateLimitButtons(cleaned.dailyLimitMinutes);
+        if ("weekdayLimitMinutes" in cleaned)
+          updateLimitButtons("weekday", cleaned.weekdayLimitMinutes);
+        if ("weekendLimitMinutes" in cleaned)
+          updateLimitButtons("weekend", cleaned.weekendLimitMinutes);
         updateTimerDisplay();
       });
     } catch {
