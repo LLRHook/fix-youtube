@@ -1,6 +1,8 @@
 node_modules/
 .DS_Store
 _metadata/
+dist-chrome/
+dist-firefox/
 *.crx
 *.pem
 *.zip
