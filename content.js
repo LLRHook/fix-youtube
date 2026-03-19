@@ -22,6 +22,10 @@
     hideComments: false,
     disableAmbient: false,
     cinemaMode: false,
+    hideNotifBadge: false,
+    autoScrollPlayer: false,
+    pauseOnSwitch: false,
+    confirmClose: false,
     playbackSpeed: 0, // 0 = YouTube default
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
@@ -35,6 +39,7 @@
     declutter: "fix-yt-declutter",
     hideComments: "fix-yt-hide-comments",
     disableAmbient: "fix-yt-no-ambient",
+    hideNotifBadge: "fix-yt-hide-notif-badge",
     hideTrending: "fix-yt-hide-trending",
   };
 
@@ -318,6 +323,47 @@
     if (video.readyState >= 1) {
       video.playbackRate = settings.playbackSpeed;
       lastSpeedVideoSrc = video.src;
+    }
+  }
+
+  // Auto-scroll to player on watch pages
+  function autoScrollToPlayer() {
+    if (!settings.autoScrollPlayer) return;
+    if (!window.location.pathname.startsWith("/watch")) return;
+    const player = document.querySelector("#movie_player, ytd-player");
+    if (player) {
+      player.scrollIntoView({ behavior: "instant", block: "start" });
+    }
+  }
+
+  // Pause video when tab becomes hidden, resume when visible
+  let pausedBySwitch = false;
+
+  function setupPauseOnSwitch() {
+    document.addEventListener("visibilitychange", () => {
+      if (!settings.pauseOnSwitch) return;
+      const video = document.querySelector("video");
+      if (!video) return;
+
+      if (document.visibilityState === "hidden" && !video.paused) {
+        video.pause();
+        pausedBySwitch = true;
+      } else if (
+        document.visibilityState === "visible" &&
+        pausedBySwitch
+      ) {
+        video.play();
+        pausedBySwitch = false;
+      }
+    });
+  }
+
+  // Warn before closing tab with playing video
+  function handleBeforeUnload(e) {
+    if (!settings.confirmClose) return;
+    const video = document.querySelector("video");
+    if (video && !video.paused) {
+      e.preventDefault();
     }
   }
 
@@ -896,6 +942,8 @@
       loadCachedSubscriptions();
       startTimer();
       startWatchTracking();
+      setupPauseOnSwitch();
+      autoScrollToPlayer();
     } else {
       requestAnimationFrame(startObserver);
     }
@@ -919,11 +967,13 @@
     collectSubscriptionsFromGuide();
     filterUnsubscribed();
     startWatchTracking();
+    autoScrollToPlayer();
   });
 
   // Save state when leaving
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("beforeunload", (e) => {
     loadTimerState((seconds) => saveTimerSeconds(seconds));
     saveCurrentWatch();
+    handleBeforeUnload(e);
   });
 })();

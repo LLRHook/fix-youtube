@@ -9,6 +9,7 @@
      .fix-yt-declutter
      .fix-yt-hide-comments
      .fix-yt-no-ambient
+     .fix-yt-hide-notif-badge
      .fix-yt-grid-{2..6}
    ============================================= */
 
@@ -96,6 +97,14 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
 .fix-yt-hide-comments #comments,
 .fix-yt-hide-comments ytd-comments#comments,
 .fix-yt-hide-comments ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"] {
+  display: none !important;
+}
+
+/* ===== Hide Notification Badge ===== */
+
+.fix-yt-hide-notif-badge .yt-spec-icon-badge-shape--type-notification,
+.fix-yt-hide-notif-badge .notification-badge,
+.fix-yt-hide-notif-badge ytd-notification-topbar-button-renderer .yt-spec-icon-badge-shape__badge {
   display: none !important;
 }
 
