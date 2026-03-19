@@ -11,6 +11,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
 - **Channel Blocklist** — Permanently hide videos from specific channels everywhere. Add channels by handle (`@channelname`) from the popup. Blocks apply across all tabs instantly.
 - **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
+- **Thumbnail Declutter** — Hides overlay badges (NEW, LIVE, 4K), watch progress bars, and view count overlays on thumbnails. Normalizes ALL CAPS clickbait titles to sentence case when >60% of letters are uppercase.
 - **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
 - **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
@@ -58,7 +59,7 @@ Features under consideration for future releases:
 - [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
 - [x] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
-- [ ] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
+- [x] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
 - [x] **Export/Import Settings** — Share your configuration across devices or with friends
 
 ## Tech Stack
