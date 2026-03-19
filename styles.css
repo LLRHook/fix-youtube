@@ -7,6 +7,8 @@
      .fix-yt-hide-trending
      .fix-yt-hide-algorithmic
      .fix-yt-declutter
+     .fix-yt-hide-comments
+     .fix-yt-no-ambient
      .fix-yt-grid-{2..6}
    ============================================= */
 
@@ -86,6 +88,22 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
 .fix-yt-hide-trending ytd-guide-section-renderer:has(a[href="/feed/trending"]),
 .fix-yt-hide-trending #endpoint[href="/feed/trending"],
 .fix-yt-hide-trending #endpoint[href="/feed/explore"] {
+  display: none !important;
+}
+
+/* ===== Hide Comments ===== */
+
+.fix-yt-hide-comments #comments,
+.fix-yt-hide-comments ytd-comments#comments,
+.fix-yt-hide-comments ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"] {
+  display: none !important;
+}
+
+/* ===== Disable Ambient Mode ===== */
+
+.fix-yt-no-ambient #cinematics,
+.fix-yt-no-ambient #cinematics-container,
+.fix-yt-no-ambient .ytp-cinematics {
   display: none !important;
 }
 

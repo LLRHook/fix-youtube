@@ -19,6 +19,9 @@
     themeAccentColor: "",
     themeFontScale: 100,
     themeMode: "auto",
+    hideComments: false,
+    disableAmbient: false,
+    cinemaMode: false,
     playbackSpeed: 0, // 0 = YouTube default
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
@@ -30,6 +33,8 @@
     noAutoplay: "fix-yt-no-autoplay",
     hideAlgorithmic: "fix-yt-hide-algorithmic",
     declutter: "fix-yt-declutter",
+    hideComments: "fix-yt-hide-comments",
+    disableAmbient: "fix-yt-no-ambient",
     hideTrending: "fix-yt-hide-trending",
   };
 
@@ -278,6 +283,16 @@
     );
     if (toggle && toggle.getAttribute("aria-checked") === "true") {
       toggle.click();
+    }
+  }
+
+  // Activate cinema/theater mode if not already active
+  function applyCinemaMode() {
+    if (!settings.cinemaMode) return;
+    const player = document.querySelector("ytd-watch-flexy");
+    if (player && !player.hasAttribute("theater")) {
+      const btn = document.querySelector(".ytp-size-button");
+      if (btn) btn.click();
     }
   }
 
@@ -888,6 +903,7 @@
     disableAutoplay();
     lastSpeedVideoSrc = "";
     applyPlaybackSpeed();
+    applyCinemaMode();
     hijackHomeLinks();
     collectSubscriptionsFromGuide();
     filterUnsubscribed();
