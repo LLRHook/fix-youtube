@@ -200,6 +200,38 @@
       color: #ff4444;
       font-weight: 600;
     }
+
+    /* Export/Import */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .action-btn {
+      flex: 1;
+      height: 30px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #2a2a2a;
+      color: #aaa;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .action-btn:hover {
+      border-color: #666;
+      color: #fff;
+    }
+
+    .action-status {
+      text-align: center;
+      font-size: 11px;
+      padding: 4px 0 2px;
+      color: #4caf50;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -321,6 +353,19 @@
         <button data-grid="6">6</button>
       </div>
     </div>
+  </div>
+
+  <div class="section">
+    <div class="toggle-label" style="padding: 4px 0 0;">
+      <span>Settings</span>
+      <small>Export or import your configuration</small>
+    </div>
+    <div class="action-row">
+      <button class="action-btn" id="exportBtn">Export</button>
+      <button class="action-btn" id="importBtn">Import</button>
+    </div>
+    <div class="action-status" id="actionStatus"></div>
+    <input type="file" id="importFile" accept=".json" style="display:none">
   </div>
 
   <script src="popup.js"></script>

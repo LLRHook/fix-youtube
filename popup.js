@@ -111,3 +111,77 @@ function updateTimerDisplay() {
 
 // Refresh the timer display every second while popup is open
 setInterval(updateTimerDisplay, 1000);
+
+// ===== Export / Import =====
+
+function showStatus(msg) {
+  const el = document.getElementById("actionStatus");
+  el.textContent = msg;
+  setTimeout(() => {
+    el.textContent = "";
+  }, 3000);
+}
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  chrome.storage.sync.get(null, (data) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "fix-youtube-settings.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    showStatus("Settings exported");
+  });
+});
+
+document.getElementById("importBtn").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+
+document.getElementById("importFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const data = JSON.parse(evt.target.result);
+
+      // Validate: only allow known setting keys
+      const validKeys = new Set(Object.keys(DEFAULTS));
+      const cleaned = {};
+      for (const [key, value] of Object.entries(data)) {
+        if (validKeys.has(key)) {
+          cleaned[key] = value;
+        }
+      }
+
+      if (Object.keys(cleaned).length === 0) {
+        showStatus("No valid settings found in file");
+        return;
+      }
+
+      chrome.storage.sync.set(cleaned, () => {
+        showStatus("Settings imported — reload YouTube");
+        // Update the popup UI to reflect imported settings
+        for (const id of TOGGLE_IDS) {
+          if (id in cleaned) {
+            document.getElementById(id).checked = cleaned[id];
+            currentSettings[id] = cleaned[id];
+          }
+        }
+        if ("gridColumns" in cleaned) updateGridButtons(cleaned.gridColumns);
+        if ("dailyLimitMinutes" in cleaned)
+          updateLimitButtons(cleaned.dailyLimitMinutes);
+        updateTimerDisplay();
+      });
+    } catch {
+      showStatus("Invalid JSON file");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
