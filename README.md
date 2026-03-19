@@ -25,7 +25,9 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - Full-screen blocker when time runs out — pauses video and locks the page
   - Per-day schedules: different limits for weekdays vs. weekends (default 1h / 2h)
   - Resets at midnight automatically
+- **Focus Mode** — One-click toggle (`Alt+D`) that enables all distraction blockers at once: Shorts, sidebar, autoplay, trending, algorithmic sections, declutter, and subscriptions-only. Snapshots your settings on activate, restores them on deactivate.
 - **Keyboard Shortcuts** — Quick toggles without opening the popup:
+  - `Alt+D` — Toggle Focus Mode
   - `Alt+S` — Toggle suggested videos sidebar
   - `Alt+F` — Toggle subscriptions-only filter
   - `Alt+T` — Toggle daily usage timer
@@ -89,7 +91,7 @@ Features under consideration for future releases:
 
 ### Next Up
 
-- [ ] **Focus Mode** — One-click toggle that enables all distraction blockers at once for deep focus sessions
+- [x] **Focus Mode** — One-click toggle that enables all distraction blockers at once for deep focus sessions
 - [x] **Playback Speed Default** — Force a default playback speed (1x–2x) on all videos
 - [ ] **Hide Comments** — Toggle to hide the comments section entirely
 - [ ] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
