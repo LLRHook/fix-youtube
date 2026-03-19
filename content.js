@@ -14,6 +14,7 @@
     dailyTimerEnabled: true,
     weekdayLimitMinutes: 60,
     weekendLimitMinutes: 120,
+    hideAlgorithmic: true,
     breakReminderEnabled: true,
     breakIntervalMinutes: 25,
   };
@@ -22,6 +23,7 @@
     hideShorts: "fix-yt-hide-shorts",
     hideSidebar: "fix-yt-hide-sidebar",
     noAutoplay: "fix-yt-no-autoplay",
+    hideAlgorithmic: "fix-yt-hide-algorithmic",
     hideTrending: "fix-yt-hide-trending",
   };
 
@@ -95,6 +97,75 @@
       );
       if (renderer) renderer.remove();
     });
+  }
+
+  // Remove algorithmic sections by matching shelf/section title text
+  const ALGORITHMIC_TITLES = [
+    "people also watched",
+    "for you",
+    "recommended",
+    "breaking news",
+    "latest posts",
+    "channels new to you",
+    "popular near you",
+    "trending",
+    "watch it again",
+    "previously watched",
+    "similar to",
+    "you might also like",
+  ];
+
+  function removeAlgorithmicSections() {
+    if (!settings.hideAlgorithmic) return;
+
+    // Shelf renderers with algorithmic titles
+    document
+      .querySelectorAll(
+        "ytd-rich-shelf-renderer:not([is-shorts]), ytd-shelf-renderer, ytd-rich-section-renderer"
+      )
+      .forEach((shelf) => {
+        if (shelf.dataset.fixYtAlgoChecked) return;
+        shelf.dataset.fixYtAlgoChecked = "1";
+
+        const titleEl = shelf.querySelector(
+          "#title-text, #title, span.style-scope.ytd-rich-shelf-renderer"
+        );
+        if (!titleEl) return;
+
+        const title = titleEl.textContent.trim().toLowerCase();
+        if (ALGORITHMIC_TITLES.some((t) => title.includes(t))) {
+          shelf.remove();
+        }
+      });
+
+    // Horizontal card carousels ("Channels new to you", etc.)
+    document
+      .querySelectorAll("ytd-horizontal-card-list-renderer")
+      .forEach((el) => {
+        if (el.dataset.fixYtAlgoChecked) return;
+        el.dataset.fixYtAlgoChecked = "1";
+        el.remove();
+      });
+
+    // Community/post renderers in feeds
+    document
+      .querySelectorAll(
+        "ytd-post-renderer, ytd-backstage-post-thread-renderer"
+      )
+      .forEach((el) => {
+        if (el.dataset.fixYtAlgoChecked) return;
+        el.dataset.fixYtAlgoChecked = "1";
+        el.remove();
+      });
+
+    // Auto-generated Mixes
+    document
+      .querySelectorAll("ytd-radio-renderer, ytd-compact-radio-renderer")
+      .forEach((el) => {
+        if (el.dataset.fixYtAlgoChecked) return;
+        el.dataset.fixYtAlgoChecked = "1";
+        el.remove();
+      });
   }
 
   // Disable autoplay by clicking the toggle if it's on
@@ -537,6 +608,7 @@
     if (document.body) {
       const observer = new MutationObserver(() => {
         removeShortsElements();
+        removeAlgorithmicSections();
         disableAutoplay();
         hijackHomeLinks();
         collectSubscriptionsFromGuide();
@@ -544,6 +616,7 @@
       });
       observer.observe(document.body, { childList: true, subtree: true });
       removeShortsElements();
+      removeAlgorithmicSections();
       disableAutoplay();
       hijackHomeLinks();
       loadCachedSubscriptions();
@@ -559,6 +632,7 @@
   document.addEventListener("yt-navigate-finish", () => {
     redirectHomeToSubscriptions();
     removeShortsElements();
+    removeAlgorithmicSections();
     disableAutoplay();
     hijackHomeLinks();
     collectSubscriptionsFromGuide();

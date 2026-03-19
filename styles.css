@@ -5,6 +5,7 @@
      .fix-yt-hide-sidebar
      .fix-yt-no-autoplay
      .fix-yt-hide-trending
+     .fix-yt-hide-algorithmic
      .fix-yt-grid-{2..6}
    ============================================= */
 
@@ -84,6 +85,42 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
 .fix-yt-hide-trending ytd-guide-section-renderer:has(a[href="/feed/trending"]),
 .fix-yt-hide-trending #endpoint[href="/feed/trending"],
 .fix-yt-hide-trending #endpoint[href="/feed/explore"] {
+  display: none !important;
+}
+
+/* ===== Hide Algorithmic Sections ===== */
+
+/* Horizontal card carousels ("Channels new to you", etc.) */
+.fix-yt-hide-algorithmic ytd-horizontal-card-list-renderer {
+  display: none !important;
+}
+
+/* Community/post renderers injected into feeds */
+.fix-yt-hide-algorithmic ytd-post-renderer,
+.fix-yt-hide-algorithmic ytd-backstage-post-thread-renderer {
+  display: none !important;
+}
+
+/* Auto-generated Mixes */
+.fix-yt-hide-algorithmic ytd-radio-renderer,
+.fix-yt-hide-algorithmic ytd-compact-radio-renderer {
+  display: none !important;
+}
+
+/* "People also search for" in search results */
+.fix-yt-hide-algorithmic ytd-search-refinement-card-renderer {
+  display: none !important;
+}
+
+/* Promoted / ad shelves in feeds */
+.fix-yt-hide-algorithmic ytd-promoted-sparkles-web-renderer,
+.fix-yt-hide-algorithmic ytd-statement-banner-renderer,
+.fix-yt-hide-algorithmic ytd-brand-video-shelf-renderer {
+  display: none !important;
+}
+
+/* "Latest posts" / info panels */
+.fix-yt-hide-algorithmic ytd-clarification-renderer {
   display: none !important;
 }
 
