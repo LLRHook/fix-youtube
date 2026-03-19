@@ -196,3 +196,77 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
   font-size: 14px !important;
   color: #666 !important;
 }
+
+/* ===== Break Reminder Overlay ===== */
+
+#fix-yt-break {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
+  animation: fix-yt-fade-in 0.3s ease;
+}
+
+@keyframes fix-yt-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fix-yt-break-content {
+  text-align: center;
+  color: #f1f1f1;
+  max-width: 420px;
+  padding: 40px;
+}
+
+.fix-yt-break-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+}
+
+#fix-yt-break h2 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+#fix-yt-break p {
+  font-size: 16px;
+  color: #aaa;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+#fix-yt-break strong {
+  color: #ff8800;
+}
+
+.fix-yt-break-sub {
+  font-size: 13px !important;
+  color: #666 !important;
+  margin-bottom: 24px !important;
+}
+
+#fix-yt-break-dismiss {
+  margin-top: 20px;
+  padding: 10px 28px;
+  border: 1px solid #444;
+  border-radius: 20px;
+  background: transparent;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#fix-yt-break-dismiss:hover {
+  border-color: #888;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}

@@ -13,6 +13,8 @@
     gridColumns: 0, // 0 = YouTube default
     dailyTimerEnabled: true,
     dailyLimitMinutes: 60,
+    breakReminderEnabled: true,
+    breakIntervalMinutes: 25,
   };
 
   const CLASS_MAP = {
@@ -391,6 +393,7 @@
         elapsed++;
         const remaining = Math.max(0, limitSeconds - elapsed);
         updateClock(remaining, limitSeconds);
+        tickBreakReminder();
 
         // Save every 5 seconds to reduce writes
         if (elapsed % 5 === 0) {
@@ -413,6 +416,76 @@
     }
   }
 
+  // ===== Break Reminders =====
+
+  let continuousSeconds = 0;
+  let hiddenSince = 0;
+  let breakReminderElement = null;
+
+  function showBreakReminder() {
+    if (breakReminderElement) return;
+
+    const video = document.querySelector("video");
+    if (video) video.pause();
+
+    breakReminderElement = document.createElement("div");
+    breakReminderElement.id = "fix-yt-break";
+    breakReminderElement.innerHTML = `
+      <div class="fix-yt-break-content">
+        <div class="fix-yt-break-icon">&#9749;</div>
+        <h2>Time for a break</h2>
+        <p>You've been watching for <strong>${settings.breakIntervalMinutes} minutes</strong> straight.</p>
+        <p class="fix-yt-break-sub">Stand up, stretch, look away from the screen.</p>
+        <button id="fix-yt-break-dismiss">Continue watching</button>
+      </div>
+    `;
+
+    function insert() {
+      if (document.body) {
+        document.body.appendChild(breakReminderElement);
+        document
+          .getElementById("fix-yt-break-dismiss")
+          .addEventListener("click", dismissBreakReminder);
+      } else {
+        requestAnimationFrame(insert);
+      }
+    }
+    insert();
+  }
+
+  function dismissBreakReminder() {
+    if (breakReminderElement) {
+      breakReminderElement.remove();
+      breakReminderElement = null;
+    }
+    continuousSeconds = 0;
+  }
+
+  function tickBreakReminder() {
+    if (!settings.breakReminderEnabled) return;
+    if (breakReminderElement) return; // already showing
+
+    if (document.visibilityState !== "visible") {
+      if (hiddenSince === 0) hiddenSince = Date.now();
+      return;
+    }
+
+    // Reset continuous counter if tab was hidden for > 30s (user took a break)
+    if (hiddenSince > 0) {
+      const hiddenFor = (Date.now() - hiddenSince) / 1000;
+      hiddenSince = 0;
+      if (hiddenFor > 30) {
+        continuousSeconds = 0;
+        return;
+      }
+    }
+
+    continuousSeconds++;
+    if (continuousSeconds >= settings.breakIntervalMinutes * 60) {
+      showBreakReminder();
+    }
+  }
+
   // ===== Init & Listeners =====
 
   // Listen for settings changes from popup
@@ -432,6 +505,11 @@
       if (settings.dailyTimerEnabled) {
         startTimer();
       }
+    }
+
+    if ("breakReminderEnabled" in changes || "breakIntervalMinutes" in changes) {
+      dismissBreakReminder();
+      continuousSeconds = 0;
     }
   });
 

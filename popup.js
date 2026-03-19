@@ -10,6 +10,8 @@ const DEFAULTS = {
   gridColumns: 0,
   dailyTimerEnabled: true,
   dailyLimitMinutes: 60,
+  breakReminderEnabled: true,
+  breakIntervalMinutes: 25,
 };
 
 const TOGGLE_IDS = [
@@ -20,6 +22,7 @@ const TOGGLE_IDS = [
   "redirectHome",
   "subsOnly",
   "dailyTimerEnabled",
+  "breakReminderEnabled",
 ];
 
 let currentSettings = {};
@@ -39,6 +42,7 @@ chrome.storage.sync.get(DEFAULTS, (settings) => {
 
   updateGridButtons(settings.gridColumns);
   updateLimitButtons(settings.dailyLimitMinutes);
+  updateBreakButtons(settings.breakIntervalMinutes);
   updateTimerDisplay();
 });
 
@@ -61,6 +65,25 @@ document.querySelectorAll(".limit-options button").forEach((btn) => {
     updateTimerDisplay();
   });
 });
+
+// Break interval buttons
+document.querySelectorAll("#breakOptions button").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const value = parseInt(btn.dataset.break, 10);
+    chrome.storage.sync.set({ breakIntervalMinutes: value });
+    currentSettings.breakIntervalMinutes = value;
+    updateBreakButtons(value);
+  });
+});
+
+function updateBreakButtons(active) {
+  document.querySelectorAll("#breakOptions button").forEach((btn) => {
+    btn.classList.toggle(
+      "active",
+      parseInt(btn.dataset.break, 10) === active
+    );
+  });
+}
 
 function updateGridButtons(active) {
   document.querySelectorAll(".grid-options button").forEach((btn) => {

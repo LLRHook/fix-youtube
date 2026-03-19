@@ -339,6 +339,31 @@
   </div>
 
   <div class="section">
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <span>Break Reminders</span>
+        <small>Nudge to take a break after continuous watching</small>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="breakReminderEnabled">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="grid-row">
+      <div class="toggle-label">
+        <span>Break Every</span>
+      </div>
+      <div class="limit-options" id="breakOptions">
+        <button data-break="15">15m</button>
+        <button data-break="25">25m</button>
+        <button data-break="45">45m</button>
+        <button data-break="60">1h</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
     <div class="grid-row">
       <div class="toggle-label">
         <span>Videos per Row</span>
