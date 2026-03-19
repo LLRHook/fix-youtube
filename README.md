@@ -9,6 +9,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 - **Hide Suggested Videos** — Removes the related/recommended videos sidebar on watch pages and endscreen suggestions. The player expands to fill the space.
 - **Disable Autoplay** — Turns off auto-play next and hides the toggle so YouTube can't re-enable it
 - **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
+- **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
 - **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
 - **Daily Usage Timer** — Configurable daily time limit (30m / 1h / 1.5h / 2h) with:
   - Live countdown clock overlay on the page
