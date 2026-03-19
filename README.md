@@ -41,11 +41,25 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
 
 ## Install
 
+### Chrome
 1. Clone or download this repo
-2. Open `chrome://extensions` in Chrome
+2. Open `chrome://extensions`
 3. Enable **Developer mode** (top-right toggle)
 4. Click **Load unpacked** and select this folder
 5. Click the extension icon to configure features
+
+### Firefox
+1. Clone or download this repo
+2. Run `./build.sh firefox` (or manually copy `manifest.firefox.json` to `manifest.json`)
+3. Open `about:debugging#/runtime/this-firefox`
+4. Click **Load Temporary Add-on** and select `manifest.json` from the `dist-firefox/` folder
+5. Click the extension icon to configure features
+
+### Build Script
+```bash
+./build.sh chrome   # → dist-chrome/
+./build.sh firefox  # → dist-firefox/
+```
 
 ## How It Works
 
@@ -67,7 +81,7 @@ Features under consideration for future releases:
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
 - [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
 - [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
-- [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
+- [x] **Firefox Support** — Port to Firefox with WebExtension compatibility
 - [x] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
 - [x] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
 - [x] **Export/Import Settings** — Share your configuration across devices or with friends
