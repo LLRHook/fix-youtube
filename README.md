@@ -30,6 +30,12 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - `Alt+T` — Toggle daily usage timer
   - Customizable via `chrome://extensions/shortcuts`
 - **Break Reminders** — Gentle nudge after continuous watching (15m / 25m / 45m / 1h). Pauses video, shows a dismissable overlay. Resets when you leave the tab for 30+ seconds or dismiss the reminder.
+- **Watch History Dashboard** — Tracks every video you watch (title, channel, duration). Opens in a full tab with:
+  - Today / this week total watch time
+  - Top channels by watch time
+  - Recent 50 videos with duration and timestamp
+  - Auto-prunes entries older than 30 days
+  - Clear all history button
 - **Export/Import Settings** — Download your configuration as a JSON file, share it, or restore it on another machine. Import validates keys so unknown data is safely ignored.
 - **Popup Settings Panel** — Dark-themed control panel with toggles for every feature. Changes apply instantly, no reload needed.
 
@@ -56,7 +62,7 @@ The daily timer only counts seconds while the YouTube tab is visible (`document.
 Features under consideration for future releases:
 
 - [x] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
-- [ ] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
+- [x] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
 - [x] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
 - [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
 - [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
