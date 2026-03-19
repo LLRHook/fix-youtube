@@ -135,6 +135,15 @@
     }
   }
 
+  // Redirect /shorts/ID to /watch?v=ID (catches SPA navigations)
+  function redirectShortsToWatch() {
+    if (!settings.hideShorts) return;
+    const match = window.location.pathname.match(/^\/shorts\/([a-zA-Z0-9_-]+)/);
+    if (match) {
+      window.location.replace("https://www.youtube.com/watch?v=" + match[1]);
+    }
+  }
+
   // Rewrite the YouTube logo and Home sidebar links to point to subscriptions
   function hijackHomeLinks() {
     if (!settings.redirectHome) return;
@@ -481,6 +490,7 @@
       settings = { ...DEFAULTS, ...stored };
       applyClasses();
       redirectHomeToSubscriptions();
+      redirectShortsToWatch();
     });
   }
 
@@ -896,6 +906,7 @@
   // Catch SPA navigations
   document.addEventListener("yt-navigate-finish", () => {
     redirectHomeToSubscriptions();
+    redirectShortsToWatch();
     removeShortsElements();
     removeAlgorithmicSections();
     filterBlockedChannels();
