@@ -86,6 +86,14 @@ Features under consideration for future releases:
 - [x] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
 - [x] **Export/Import Settings** — Share your configuration across devices or with friends
 
+### Next Up
+
+- [ ] **Focus Mode** — One-click toggle that enables all distraction blockers at once for deep focus sessions
+- [ ] **Playback Speed Default** — Force a default playback speed (1x–2x) on all videos
+- [ ] **Hide Comments** — Toggle to hide the comments section entirely
+- [ ] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
+- [ ] **Cinema Mode Default** — Always open videos in theater/cinema mode
+
 ## Tech Stack
 
 - Manifest V3 Chrome Extension
