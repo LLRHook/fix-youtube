@@ -21,6 +21,7 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - `Alt+F` — Toggle subscriptions-only filter
   - `Alt+T` — Toggle daily usage timer
   - Customizable via `chrome://extensions/shortcuts`
+- **Export/Import Settings** — Download your configuration as a JSON file, share it, or restore it on another machine. Import validates keys so unknown data is safely ignored.
 - **Popup Settings Panel** — Dark-themed control panel with toggles for every feature. Changes apply instantly, no reload needed.
 
 ## Install
@@ -54,7 +55,7 @@ Features under consideration for future releases:
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility
 - [ ] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
 - [ ] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
-- [ ] **Export/Import Settings** — Share your configuration across devices or with friends
+- [x] **Export/Import Settings** — Share your configuration across devices or with friends
 
 ## Tech Stack
 
