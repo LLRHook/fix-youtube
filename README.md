@@ -16,6 +16,11 @@ A Chrome extension that takes back control of your YouTube experience. No Shorts
   - Color-coded warnings (orange at 25%, red pulsing at 0%)
   - Full-screen blocker when time runs out — pauses video and locks the page
   - Resets at midnight automatically
+- **Keyboard Shortcuts** — Quick toggles without opening the popup:
+  - `Alt+S` — Toggle suggested videos sidebar
+  - `Alt+F` — Toggle subscriptions-only filter
+  - `Alt+T` — Toggle daily usage timer
+  - Customizable via `chrome://extensions/shortcuts`
 - **Popup Settings Panel** — Dark-themed control panel with toggles for every feature. Changes apply instantly, no reload needed.
 
 ## Install
@@ -43,7 +48,7 @@ Features under consideration for future releases:
 - [ ] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
 - [ ] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
 - [ ] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
-- [ ] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
+- [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
 - [ ] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
 - [ ] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
 - [ ] **Firefox Support** — Port to Firefox with WebExtension compatibility

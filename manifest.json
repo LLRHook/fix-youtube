@@ -29,6 +29,23 @@
       "run_at": "document_start"
     }
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "toggle-sidebar": {
+      "suggested_key": { "default": "Alt+S" },
+      "description": "Toggle suggested videos sidebar"
+    },
+    "toggle-subs-only": {
+      "suggested_key": { "default": "Alt+F" },
+      "description": "Toggle subscriptions-only filter"
+    },
+    "toggle-timer": {
+      "suggested_key": { "default": "Alt+T" },
+      "description": "Toggle daily usage timer"
+    }
+  },
   "icons": {
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
