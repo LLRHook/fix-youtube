@@ -1,5 +1,11 @@
 // Fix YouTube — Dashboard
 
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function formatDuration(seconds) {
   if (seconds < 60) return seconds + "s";
   const h = Math.floor(seconds / 3600);
@@ -78,7 +84,7 @@ chrome.storage.local.get({ watchHistory: [] }, (data) => {
     .map(
       ([name, seconds]) =>
         `<div class="channel-chip">
-          <span class="ch-name">${name}</span>
+          <span class="ch-name">${escapeHtml(name)}</span>
           <span class="ch-time">${formatDuration(seconds)}</span>
         </div>`
     )
@@ -93,8 +99,8 @@ chrome.storage.local.get({ watchHistory: [] }, (data) => {
         `<div class="history-entry">
           <div class="entry-time">${formatDuration(e.watchedSeconds)}</div>
           <div class="entry-info">
-            <div class="entry-title">${e.title || e.videoId}</div>
-            <div class="entry-meta">${e.channelName || e.channel || ""}</div>
+            <div class="entry-title">${escapeHtml(e.title || e.videoId)}</div>
+            <div class="entry-meta">${escapeHtml(e.channelName || e.channel || "")}</div>
           </div>
           <div class="entry-date">${formatDate(e.timestamp)}</div>
         </div>`

@@ -211,7 +211,7 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
   backdrop-filter: blur(8px);
   color: #e0e0e0;
   font-family: "YouTube Sans", "Roboto Mono", monospace;
-  font-size: 14px;
+  font-size: 14px !important;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   padding: 8px 14px;
@@ -250,6 +250,7 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
   align-items: center;
   justify-content: center;
   font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px !important;
 }
 
 .fix-yt-blocker-content {
@@ -300,6 +301,7 @@ ytd-guide-entry-renderer:has(a[title="Home"]) {
   align-items: center;
   justify-content: center;
   font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px !important;
   animation: fix-yt-fade-in 0.3s ease;
 }
 

@@ -353,6 +353,12 @@ function updateFontScale(active) {
 
 // ===== Channel Blocklist =====
 
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function renderBlocklist(channels) {
   const container = document.getElementById("blocklist");
   if (channels.length === 0) {
@@ -362,7 +368,7 @@ function renderBlocklist(channels) {
   container.innerHTML = channels
     .map(
       (ch) =>
-        `<div class="blocklist-item"><span>${ch}</span><button data-channel="${ch}">&times;</button></div>`
+        `<div class="blocklist-item"><span>${escapeHtml(ch)}</span><button data-channel="${escapeHtml(ch)}">&times;</button></div>`
     )
     .join("");
 

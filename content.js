@@ -311,18 +311,20 @@
   }
 
   // Force playback speed on the video element
-  let lastSpeedVideoSrc = "";
+  let lastSpeedVideoId = "";
 
   function applyPlaybackSpeed() {
     if (!settings.playbackSpeed) return;
     const video = document.querySelector("video");
     if (!video) return;
 
-    // Only set once per video source to avoid fighting the user
-    if (video.src === lastSpeedVideoSrc) return;
+    // Track by video ID (not blob src) to avoid fighting the user
+    const videoId = getVideoId();
+    if (!videoId) return;
+    if (videoId === lastSpeedVideoId) return;
     if (video.readyState >= 1) {
       video.playbackRate = settings.playbackSpeed;
-      lastSpeedVideoSrc = video.src;
+      lastSpeedVideoId = videoId;
     }
   }
 
@@ -330,10 +332,14 @@
   function autoScrollToPlayer() {
     if (!settings.autoScrollPlayer) return;
     if (!window.location.pathname.startsWith("/watch")) return;
-    const player = document.querySelector("#movie_player, ytd-player");
-    if (player) {
-      player.scrollIntoView({ behavior: "instant", block: "start" });
-    }
+
+    // Delay to ensure player is rendered after SPA navigation
+    setTimeout(() => {
+      const player = document.querySelector("#movie_player, ytd-player");
+      if (player) {
+        player.scrollIntoView({ behavior: "instant", block: "start" });
+      }
+    }, 300);
   }
 
   // Pause video when tab becomes hidden, resume when visible
@@ -660,61 +666,75 @@
     }
   }
 
-  function startTimer() {
-    if (timerInterval) return;
-    if (!settings.dailyTimerEnabled) {
-      removeClock();
-      return;
-    }
+  // Master tick — runs every second regardless of timer setting
+  let masterInterval = null;
+  let timerElapsed = 0;
+  let timerLimitSeconds = 0;
 
-    const limitSeconds = getEffectiveLimitMinutes() * 60;
-    ensureClock();
+  function startMasterTick() {
+    if (masterInterval) return;
 
-    loadTimerState((seconds) => {
-      let elapsed = seconds;
-
-      if (elapsed >= limitSeconds) {
-        updateClock(0, limitSeconds);
-        showBlocker(elapsed);
+    function initTimer() {
+      if (!settings.dailyTimerEnabled) {
+        removeClock();
         return;
       }
-
-      updateClock(limitSeconds - elapsed, limitSeconds);
-
-      timerInterval = setInterval(() => {
-        // Only count when the tab is visible
-        if (document.visibilityState !== "visible") return;
-        if (!settings.dailyTimerEnabled) {
-          stopTimer();
-          removeBlocker();
-          removeClock();
-          return;
+      timerLimitSeconds = getEffectiveLimitMinutes() * 60;
+      ensureClock();
+      loadTimerState((seconds) => {
+        timerElapsed = seconds;
+        if (timerElapsed >= timerLimitSeconds) {
+          updateClock(0, timerLimitSeconds);
+          showBlocker(timerElapsed);
+        } else {
+          updateClock(timerLimitSeconds - timerElapsed, timerLimitSeconds);
         }
+      });
+    }
 
-        elapsed++;
-        const remaining = Math.max(0, limitSeconds - elapsed);
-        updateClock(remaining, limitSeconds);
-        tickBreakReminder();
-        tickWatchTracking();
+    initTimer();
 
-        // Save every 5 seconds to reduce writes
-        if (elapsed % 5 === 0) {
-          saveTimerSeconds(elapsed);
-        }
+    masterInterval = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
 
-        if (elapsed >= limitSeconds) {
-          saveTimerSeconds(elapsed);
-          showBlocker(elapsed);
-          stopTimer();
-        }
-      }, 1000);
-    });
+      // Always tick these regardless of timer
+      tickBreakReminder();
+      tickWatchTracking();
+
+      // Daily timer logic
+      if (!settings.dailyTimerEnabled) return;
+      if (timerElapsed >= timerLimitSeconds) return;
+
+      timerElapsed++;
+      const remaining = Math.max(0, timerLimitSeconds - timerElapsed);
+      updateClock(remaining, timerLimitSeconds);
+
+      if (timerElapsed % 5 === 0) {
+        saveTimerSeconds(timerElapsed);
+      }
+
+      if (timerElapsed >= timerLimitSeconds) {
+        saveTimerSeconds(timerElapsed);
+        showBlocker(timerElapsed);
+      }
+    }, 1000);
   }
 
-  function stopTimer() {
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
+  function restartTimer() {
+    timerLimitSeconds = getEffectiveLimitMinutes() * 60;
+    removeBlocker();
+    removeClock();
+    if (settings.dailyTimerEnabled) {
+      ensureClock();
+      loadTimerState((seconds) => {
+        timerElapsed = seconds;
+        if (timerElapsed >= timerLimitSeconds) {
+          updateClock(0, timerLimitSeconds);
+          showBlocker(timerElapsed);
+        } else {
+          updateClock(timerLimitSeconds - timerElapsed, timerLimitSeconds);
+        }
+      });
     }
   }
 
@@ -837,6 +857,11 @@
     if (!currentWatch) return;
     if (document.visibilityState !== "visible") return;
     currentWatch.watchedSeconds++;
+
+    // Periodically save in case the page closes abruptly
+    if (currentWatch.watchedSeconds % 30 === 0) {
+      saveCurrentWatch();
+    }
   }
 
   function saveCurrentWatch() {
@@ -868,7 +893,17 @@
 
     chrome.storage.local.get({ watchHistory: [] }, (data) => {
       const history = data.watchHistory;
-      history.push(entry);
+
+      // Update existing entry for same video+session or append new
+      const existingIdx = history.findIndex(
+        (e) =>
+          e.videoId === entry.videoId && e.timestamp === entry.timestamp
+      );
+      if (existingIdx >= 0) {
+        history[existingIdx] = entry;
+      } else {
+        history.push(entry);
+      }
 
       // Prune entries older than 30 days
       const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
@@ -902,12 +937,7 @@
       "weekdayLimitMinutes" in changes ||
       "weekendLimitMinutes" in changes
     ) {
-      stopTimer();
-      removeBlocker();
-      removeClock();
-      if (settings.dailyTimerEnabled) {
-        startTimer();
-      }
+      restartTimer();
     }
 
     if ("breakReminderEnabled" in changes || "breakIntervalMinutes" in changes) {
@@ -940,7 +970,7 @@
       hijackHomeLinks();
       loadBlockedChannels();
       loadCachedSubscriptions();
-      startTimer();
+      startMasterTick();
       startWatchTracking();
       setupPauseOnSwitch();
       autoScrollToPlayer();
@@ -960,7 +990,7 @@
     filterBlockedChannels();
     normalizeClickbaitTitles();
     disableAutoplay();
-    lastSpeedVideoSrc = "";
+    lastSpeedVideoId = "";
     applyPlaybackSpeed();
     applyCinemaMode();
     hijackHomeLinks();
