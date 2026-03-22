@@ -5,15 +5,6 @@
   "description": "Removes Shorts, redirects to Subscriptions, hides distractions, and gives you control over your YouTube experience.",
   "permissions": ["declarativeNetRequest", "storage"],
   "host_permissions": ["*://*.youtube.com/*"],
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "redirect_rules",
-        "enabled": true,
-        "path": "rules.json"
-      }
-    ]
-  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

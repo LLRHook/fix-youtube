@@ -1,5 +1,5 @@
 // Fix YouTube - Background Service Worker
-// Handles keyboard shortcut commands
+// Handles keyboard shortcut commands and dynamic redirect rules
 
 const COMMAND_TO_SETTING = {
   "toggle-sidebar": "hideSidebar",
@@ -16,6 +16,68 @@ const FOCUS_KEYS = [
   "declutter",
   "subsOnly",
 ];
+
+// ===== Dynamic Redirect Rules =====
+
+const RULE_HOME_REDIRECT = {
+  id: 1,
+  priority: 1,
+  action: {
+    type: "redirect",
+    redirect: { transform: { path: "/feed/subscriptions" } },
+  },
+  condition: {
+    regexFilter: "^https?://www\\.youtube\\.com/?$",
+    resourceTypes: ["main_frame"],
+  },
+};
+
+const RULE_SHORTS_REDIRECT = {
+  id: 2,
+  priority: 1,
+  action: {
+    type: "redirect",
+    redirect: {
+      regexSubstitution: "https://www.youtube.com/watch?v=\\1",
+    },
+  },
+  condition: {
+    regexFilter:
+      "^https?://www\\.youtube\\.com/shorts/([a-zA-Z0-9_-]+)",
+    resourceTypes: ["main_frame"],
+  },
+};
+
+function syncRedirectRules() {
+  chrome.storage.sync.get(
+    { redirectHome: true, hideShorts: true },
+    (settings) => {
+      const addRules = [];
+      const removeRuleIds = [1, 2];
+
+      if (settings.redirectHome) addRules.push(RULE_HOME_REDIRECT);
+      if (settings.hideShorts) addRules.push(RULE_SHORTS_REDIRECT);
+
+      chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds,
+        addRules,
+      });
+    }
+  );
+}
+
+// Sync rules on install/startup
+chrome.runtime.onInstalled.addListener(syncRedirectRules);
+chrome.runtime.onStartup.addListener(syncRedirectRules);
+
+// Sync rules when relevant settings change
+chrome.storage.onChanged.addListener((changes) => {
+  if ("redirectHome" in changes || "hideShorts" in changes) {
+    syncRedirectRules();
+  }
+});
+
+// ===== Focus Mode =====
 
 function toggleFocusMode() {
   chrome.storage.sync.get(null, (settings) => {
@@ -42,6 +104,8 @@ function toggleFocusMode() {
     }
   });
 }
+
+// ===== Keyboard Shortcuts =====
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle-focus") {

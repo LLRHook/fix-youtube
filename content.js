@@ -73,10 +73,17 @@
     // Theme mode
     if (settings.themeMode === "dark") {
       root.setAttribute("dark", "");
+      root.dataset.fixYtForcedDark = "1";
     } else if (settings.themeMode === "light") {
       root.removeAttribute("dark");
+      delete root.dataset.fixYtForcedDark;
+    } else {
+      // "auto" — undo any forced override, let YouTube decide
+      if (root.dataset.fixYtForcedDark) {
+        root.removeAttribute("dark");
+        delete root.dataset.fixYtForcedDark;
+      }
     }
-    // "auto" — don't touch the attribute, let YouTube decide
 
     // Font scale
     if (settings.themeFontScale && settings.themeFontScale !== 100) {
@@ -191,6 +198,25 @@
       );
       if (renderer) renderer.remove();
     });
+  }
+
+  // Hide the "Explore" sidebar section (Music, Movies, Gaming, etc.)
+  function removeExploreSidebar() {
+    if (!settings.hideTrending) return;
+
+    document
+      .querySelectorAll("ytd-guide-section-renderer")
+      .forEach((section) => {
+        if (section.dataset.fixYtExploreChecked) return;
+        const titleEl = section.querySelector("#guide-section-title");
+        if (
+          titleEl &&
+          titleEl.textContent.trim().toLowerCase() === "explore"
+        ) {
+          section.dataset.fixYtExploreChecked = "1";
+          section.style.display = "none";
+        }
+      });
   }
 
   // Remove algorithmic sections by matching shelf/section title text
@@ -955,6 +981,7 @@
       const observer = new MutationObserver(() => {
         removeShortsElements();
         removeAlgorithmicSections();
+        removeExploreSidebar();
         filterBlockedChannels();
         normalizeClickbaitTitles();
         disableAutoplay();
@@ -966,6 +993,7 @@
       observer.observe(document.body, { childList: true, subtree: true });
       removeShortsElements();
       removeAlgorithmicSections();
+      removeExploreSidebar();
       disableAutoplay();
       hijackHomeLinks();
       loadBlockedChannels();
@@ -987,6 +1015,7 @@
     redirectShortsToWatch();
     removeShortsElements();
     removeAlgorithmicSections();
+    removeExploreSidebar();
     filterBlockedChannels();
     normalizeClickbaitTitles();
     disableAutoplay();
@@ -1002,7 +1031,7 @@
 
   // Save state when leaving
   window.addEventListener("beforeunload", (e) => {
-    loadTimerState((seconds) => saveTimerSeconds(seconds));
+    saveTimerSeconds(timerElapsed);
     saveCurrentWatch();
     handleBeforeUnload(e);
   });

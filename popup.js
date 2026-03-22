@@ -460,6 +460,7 @@ document.getElementById("importFile").addEventListener("change", (e) => {
 
       // Validate: only allow known setting keys
       const validKeys = new Set(Object.keys(DEFAULTS));
+      validKeys.add("blockedChannels");
       const cleaned = {};
       for (const [key, value] of Object.entries(data)) {
         if (validKeys.has(key)) {
