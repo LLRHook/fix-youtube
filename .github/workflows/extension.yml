@@ -28,10 +28,17 @@ jobs:
           bash ./build.sh chrome
           bash ./build.sh firefox
 
-      - name: Upload unpacked builds
+      - name: Create store zip files
+        run: |
+          (cd dist-chrome && zip -qr ../fix-youtube-chrome.zip .)
+          (cd dist-firefox && zip -qr ../fix-youtube-firefox.zip .)
+
+      - name: Upload extension packages
         uses: actions/upload-artifact@v4
         with:
-          name: fix-youtube-unpacked
+          name: fix-youtube-packages
           path: |
             dist-chrome/
             dist-firefox/
+            fix-youtube-chrome.zip
+            fix-youtube-firefox.zip
