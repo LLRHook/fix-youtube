@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "transform": {
+          "path": "/feed/subscriptions"
+        }
+      }
+    },
+    "condition": {
+      "regexFilter": "^https?://www\\.youtube\\.com/?$",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "regexSubstitution": "https://www.youtube.com/watch?v=\\1"
+      }
+    },
+    "condition": {
+      "regexFilter": "^https?://www\\.youtube\\.com/shorts/([a-zA-Z0-9_-]+)",
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]
