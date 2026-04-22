@@ -6,3 +6,7 @@ dist-firefox/
 *.crx
 *.pem
 *.zip
+
+# Local agent context
+CLAUDE.md
+.claude/

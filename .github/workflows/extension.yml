@@ -1,0 +1,37 @@
+name: Extension Package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate manifests
+        run: |
+          python -m json.tool manifest.json >/dev/null
+          python -m json.tool manifest.firefox.json >/dev/null
+
+      - name: Build browser packages
+        run: |
+          bash ./build.sh chrome
+          bash ./build.sh firefox
+
+      - name: Upload unpacked builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: fix-youtube-unpacked
+          path: |
+            dist-chrome/
+            dist-firefox/
