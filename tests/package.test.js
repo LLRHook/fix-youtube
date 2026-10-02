@@ -47,12 +47,17 @@ test("network Shorts redirects retain the complete video ID and target only main
   const rule = rules[1];
   const pattern = new RegExp(rule.condition.regexFilter);
   const replacement = rule.action.redirect.regexSubstitution.replace(/\\(\d)/g, "$$$1");
-  for (const url of ["https://www.youtube.com/shorts/Ab_c-D12345?feature=share", "https://youtube.com/shorts/Ab_c-D12345/"]) {
+  for (const url of [
+    "https://www.youtube.com/shorts/Ab_c-D12345",
+    "https://www.youtube.com/shorts/Ab_c-D12345?feature=share",
+    "https://youtube.com/shorts/Ab_c-D12345/?si=example",
+    "https://www.youtube.com/shorts/Ab_c-D12345#details",
+  ]) {
     const match = url.match(pattern);
     assert.ok(match);
     assert.equal(match[2], "Ab_c-D12345");
-    // Apply RE2 substitution to the match rather than retaining query suffixes.
-    assert.equal(match[0].replace(pattern, replacement), "https://www.youtube.com/watch?v=Ab_c-D12345");
+    // The browser replaces the first match within the complete request URL.
+    assert.equal(url.replace(pattern, replacement), "https://www.youtube.com/watch?v=Ab_c-D12345");
   }
   assert.ok(!pattern.test("https://www.youtube.com/shorts/"));
   assert.ok(!pattern.test("https://music.youtube.com/shorts/test"));
