@@ -47,11 +47,18 @@ async function startYouTube() {
     if (head.length) socket.unshift(head);
     site.emit("connection", socket);
   });
+  const tunnels = new Set();
+  proxy.on("connection", socket => { tunnels.add(socket); socket.on("close", () => tunnels.delete(socket)); });
   await new Promise(resolve => proxy.listen(0, "127.0.0.1", resolve));
   return {
     port: proxy.address().port,
     requests,
-    close: () => { proxy.close(); site.close(); fs.rmSync(dir, { recursive: true, force: true }); },
+    close: () => {
+      for (const socket of tunnels) socket.destroy();
+      proxy.close();
+      site.close();
+      fs.rmSync(dir, { recursive: true, force: true });
+    },
   };
 }
 
@@ -105,7 +112,12 @@ async function until(condition, timeout = 5000) {
 // Visit a URL and return the YouTube requests that navigation produced.
 async function visit(site, page, url) {
   site.requests.length = 0;
-  await page.goto(url, { waitUntil: "load" });
+  // Firefox can report a network-rule redirect as an interrupted navigation.
+  await page.goto(url, { waitUntil: "load" }).catch(error => {
+    if (!error.message.includes("navigation interrupted")) throw error;
+  });
+  await until(() => site.requests.length > 0);
+  await page.waitForFunction(() => document.readyState === "complete");
   return [...site.requests];
 }
 
