@@ -11,9 +11,12 @@ grid-shelf-view-model:has(ytm-shorts-lockup-view-model),
 yt-tab-shape[tab-title="Shorts"],
 ytd-guide-entry-renderer:has(a[href^="/shorts"]),
 ytd-mini-guide-entry-renderer:has(a[href^="/shorts"]),
-/* YouTube also renders Shorts navigation buttons without an href. */
+/* YouTube also renders Shorts navigation buttons without an href. Their title is
+   localized (e.g. ショート), so also match the language-neutral Shorts icon. */
 ytd-guide-entry-renderer:has(a[title="Shorts" i]),
 ytd-mini-guide-entry-renderer:has(a[title="Shorts" i]),
+ytd-guide-entry-renderer:has(path[d^="m13.467 1.19-8 4.7"]),
+ytd-mini-guide-entry-renderer:has(path[d^="m13.467 1.19-8 4.7"]),
 ytd-video-renderer:has(a[href^="/shorts/"]),
 ytd-compact-video-renderer:has(a[href^="/shorts/"]),
 ytd-grid-video-renderer:has(a[href^="/shorts/"]),

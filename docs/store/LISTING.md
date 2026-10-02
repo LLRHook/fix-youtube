@@ -43,7 +43,7 @@ English listing. Chromium 105+; Firefox 142+.
 
 ## Release notes
 
-Version 0.3.0 replaces the settings dashboard with one fixed experience. It removes custom themes, timers, settings import/export, watch tracking, and feature-toggle shortcuts. Updates autoplay handling and the watch-page layout for current YouTube.
+Version 0.3.0 replaces the settings dashboard with one fixed experience. It removes custom themes, timers, settings import/export, watch tracking, and feature-toggle shortcuts. Updates autoplay handling and the watch-page layout for current YouTube. Shared Shorts links now open the correct video, and the Shorts sidebar entry is hidden in every YouTube language.
 
 ## Assets
 
