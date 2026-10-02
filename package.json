@@ -1,0 +1,18 @@
+{
+  "name": "fix-youtube",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Hide YouTube Shorts and recommendations, disable autoplay, and open Subscriptions by default. No settings or setup.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LLRHook/fix-youtube.git"
+  },
+  "scripts": {
+    "test": "node --test",
+    "build": "python build.py"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

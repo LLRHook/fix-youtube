@@ -1,365 +1,85 @@
-/* =============================================
-   Fix YouTube - Styles
-   Features are toggled via classes on <html>:
-     .fix-yt-hide-shorts
-     .fix-yt-hide-sidebar
-     .fix-yt-no-autoplay
-     .fix-yt-hide-trending
-     .fix-yt-hide-algorithmic
-     .fix-yt-declutter
-     .fix-yt-hide-comments
-     .fix-yt-no-ambient
-     .fix-yt-hide-notif-badge
-     .fix-yt-grid-{2..6}
-   ============================================= */
+/* Fixed desktop YouTube cleanup. Native controls, comments and search remain. */
 
-/* ===== Hide Shorts ===== */
-
-.fix-yt-hide-shorts ytd-rich-shelf-renderer[is-shorts],
-.fix-yt-hide-shorts ytd-reel-shelf-renderer {
+/* Shorts: current/legacy renderers, navigation, search and channel tabs. */
+ytd-rich-shelf-renderer[is-shorts],
+ytd-reel-shelf-renderer,
+yt-shorts-shelf-renderer,
+yt-shorts-lockup-view-model,
+ytm-shorts-lockup-view-model,
+ytm-shorts-lockup-view-model-v2,
+grid-shelf-view-model:has(ytm-shorts-lockup-view-model),
+yt-tab-shape[tab-title="Shorts"],
+ytd-guide-entry-renderer:has(a[href^="/shorts"]),
+ytd-mini-guide-entry-renderer:has(a[href^="/shorts"]),
+/* YouTube also renders Shorts navigation buttons without an href. */
+ytd-guide-entry-renderer:has(a[title="Shorts" i]),
+ytd-mini-guide-entry-renderer:has(a[title="Shorts" i]),
+ytd-video-renderer:has(a[href^="/shorts/"]),
+ytd-compact-video-renderer:has(a[href^="/shorts/"]),
+ytd-grid-video-renderer:has(a[href^="/shorts/"]),
+ytd-rich-item-renderer:has(a[href^="/shorts/"]),
+yt-lockup-view-model:has(a[href^="/shorts/"]),
+ytd-notification-renderer:has(a[href^="/shorts/"]) {
   display: none !important;
 }
 
-.fix-yt-hide-shorts yt-tab-shape[tab-title="Shorts"],
-.fix-yt-hide-shorts tp-yt-paper-tab:has(> .tab-content:has([title="Shorts"])) {
+/* Keep playlist queues and live chat; hide recommendation containers. */
+ytd-watch-flexy #related,
+ytd-watch-next-secondary-results-renderer,
+.ytp-endscreen-content,
+.ytp-ce-element,
+.ytp-autonav-endscreen-upnext-container,
+.fix-yt-recommendation {
   display: none !important;
 }
 
-.fix-yt-hide-shorts ytd-video-renderer:has(a[href*="/shorts/"]) {
+/* The content script switches autoplay off even while this is hidden. */
+.ytp-autonav-toggle,
+.ytp-autonav-toggle-button-container {
   display: none !important;
 }
 
-.fix-yt-hide-shorts ytd-compact-video-renderer:has(a[href*="/shorts/"]),
-.fix-yt-hide-shorts ytd-grid-video-renderer:has(a[href*="/shorts/"]),
-.fix-yt-hide-shorts ytd-rich-item-renderer:has(a[href*="/shorts/"]) {
+/* Discovery shortcuts and algorithmic extras in search/subscriptions. */
+ytd-guide-entry-renderer:has(a[href="/feed/trending"]),
+ytd-guide-entry-renderer:has(a[href="/feed/explore"]),
+ytd-mini-guide-entry-renderer:has(a[href="/feed/trending"]),
+ytd-mini-guide-entry-renderer:has(a[href="/feed/explore"]),
+ytd-search ytd-radio-renderer,
+ytd-search ytd-search-refinement-card-renderer,
+ytd-search ytd-horizontal-card-list-renderer,
+ytd-browse[page-subtype="subscriptions"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-shorts]) {
   display: none !important;
 }
 
-.fix-yt-hide-shorts ytd-mini-guide-entry-renderer:has(a[title="Shorts"]),
-.fix-yt-hide-shorts ytd-guide-entry-renderer:has(a[title="Shorts"]) {
+/* Collapse the empty column, but retain native chat, queues and open panels. */
+ytd-watch-flexy #secondary:not(:has(
+  ytd-playlist-panel-renderer:not([hidden]),
+  ytd-live-chat-frame:not([hide-chat-frame]):not([hidden]),
+  ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]
+)) {
   display: none !important;
 }
 
-.fix-yt-hide-shorts ytd-notification-renderer:has(a[href*="/shorts/"]) {
-  display: none !important;
-}
-
-/* ===== Hide Home from sidebar ===== */
-
-ytd-mini-guide-entry-renderer:has(a[title="Home"]),
-ytd-guide-entry-renderer:has(a[title="Home"]) {
-  display: none !important;
-}
-
-/* ===== Hide Related / Suggested Videos Sidebar ===== */
-
-.fix-yt-hide-sidebar #related,
-.fix-yt-hide-sidebar #secondary-inner #related,
-.fix-yt-hide-sidebar ytd-watch-next-secondary-results-renderer {
-  display: none !important;
-}
-
-/* Endscreen video suggestions */
-.fix-yt-hide-sidebar .ytp-endscreen-content,
-.fix-yt-hide-sidebar .ytp-ce-element {
-  display: none !important;
-}
-
-/* Expand the player area when sidebar is hidden */
-.fix-yt-hide-sidebar ytd-watch-flexy[flexy][is-two-columns_] #primary.ytd-watch-flexy {
-  max-width: 100% !important;
-}
-
-/* ===== Disable Autoplay (hide the toggle) ===== */
-
-.fix-yt-no-autoplay .ytp-autonav-toggle-button-container,
-.fix-yt-no-autoplay .ytp-button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
-  display: none !important;
-}
-
-/* ===== Hide Trending / Explore ===== */
-
-.fix-yt-hide-trending ytd-mini-guide-entry-renderer:has(a[title="Trending"]),
-.fix-yt-hide-trending ytd-guide-entry-renderer:has(a[title="Trending"]),
-.fix-yt-hide-trending ytd-mini-guide-entry-renderer:has(a[title="Explore"]),
-.fix-yt-hide-trending ytd-guide-entry-renderer:has(a[title="Explore"]) {
-  display: none !important;
-}
-
-.fix-yt-hide-trending ytd-guide-section-renderer:has(a[href="/feed/trending"]),
-.fix-yt-hide-trending #endpoint[href="/feed/trending"],
-.fix-yt-hide-trending #endpoint[href="/feed/explore"] {
-  display: none !important;
-}
-
-/* ===== Hide Comments ===== */
-
-.fix-yt-hide-comments #comments,
-.fix-yt-hide-comments ytd-comments#comments,
-.fix-yt-hide-comments ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-comments-section"] {
-  display: none !important;
-}
-
-/* ===== Hide Notification Badge ===== */
-
-.fix-yt-hide-notif-badge .yt-spec-icon-badge-shape--type-notification,
-.fix-yt-hide-notif-badge .notification-badge,
-.fix-yt-hide-notif-badge ytd-notification-topbar-button-renderer .yt-spec-icon-badge-shape__badge {
-  display: none !important;
-}
-
-/* ===== Disable Ambient Mode ===== */
-
-.fix-yt-no-ambient #cinematics,
-.fix-yt-no-ambient #cinematics-container,
-.fix-yt-no-ambient .ytp-cinematics {
-  display: none !important;
-}
-
-/* ===== Thumbnail Declutter ===== */
-
-/* Overlay badges: NEW, LIVE, 4K, UPCOMING, PREMIERING */
-.fix-yt-declutter ytd-thumbnail-overlay-time-status-renderer[overlay-style="UPCOMING"],
-.fix-yt-declutter ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"],
-.fix-yt-declutter ytd-badge-supported-renderer,
-.fix-yt-declutter .badge-shape-wiz--thumbnail {
-  display: none !important;
-}
-
-/* Watch progress bar on thumbnails */
-.fix-yt-declutter ytd-thumbnail-overlay-resume-playback-renderer,
-.fix-yt-declutter #progress.ytd-thumbnail-overlay-resume-playback-renderer {
-  display: none !important;
-}
-
-/* View count overlay on thumbnails */
-.fix-yt-declutter ytd-thumbnail-overlay-bottom-panel-renderer {
-  display: none !important;
-}
-
-/* "Now playing" overlay */
-.fix-yt-declutter ytd-thumbnail-overlay-now-playing-renderer {
-  display: none !important;
-}
-
-/* ===== Hide Algorithmic Sections ===== */
-
-/* Horizontal card carousels ("Channels new to you", etc.) */
-.fix-yt-hide-algorithmic ytd-horizontal-card-list-renderer {
-  display: none !important;
-}
-
-/* Community/post renderers injected into feeds */
-.fix-yt-hide-algorithmic ytd-post-renderer,
-.fix-yt-hide-algorithmic ytd-backstage-post-thread-renderer {
-  display: none !important;
-}
-
-/* Auto-generated Mixes */
-.fix-yt-hide-algorithmic ytd-radio-renderer,
-.fix-yt-hide-algorithmic ytd-compact-radio-renderer {
-  display: none !important;
-}
-
-/* "People also search for" in search results */
-.fix-yt-hide-algorithmic ytd-search-refinement-card-renderer {
-  display: none !important;
-}
-
-/* Promoted / ad shelves in feeds */
-.fix-yt-hide-algorithmic ytd-promoted-sparkles-web-renderer,
-.fix-yt-hide-algorithmic ytd-statement-banner-renderer,
-.fix-yt-hide-algorithmic ytd-brand-video-shelf-renderer {
-  display: none !important;
-}
-
-/* "Latest posts" / info panels */
-.fix-yt-hide-algorithmic ytd-clarification-renderer {
-  display: none !important;
-}
-
-/* ===== Grid Layout (videos per row) ===== */
-
-.fix-yt-grid-2 ytd-rich-grid-renderer {
-  --ytd-rich-grid-items-per-row: 2 !important;
-}
-
-.fix-yt-grid-3 ytd-rich-grid-renderer {
-  --ytd-rich-grid-items-per-row: 3 !important;
-}
-
-.fix-yt-grid-4 ytd-rich-grid-renderer {
-  --ytd-rich-grid-items-per-row: 4 !important;
-}
-
-.fix-yt-grid-5 ytd-rich-grid-renderer {
-  --ytd-rich-grid-items-per-row: 5 !important;
-}
-
-.fix-yt-grid-6 ytd-rich-grid-renderer {
-  --ytd-rich-grid-items-per-row: 6 !important;
-}
-
-/* ===== On-Page Timer Clock ===== */
-
-#fix-yt-clock {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 2147483646;
-  background: rgba(15, 15, 15, 0.85);
-  backdrop-filter: blur(8px);
-  color: #e0e0e0;
-  font-family: "YouTube Sans", "Roboto Mono", monospace;
-  font-size: 14px !important;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  pointer-events: none;
-  user-select: none;
-  transition: color 0.3s, border-color 0.3s;
-  letter-spacing: 0.5px;
-}
-
-#fix-yt-clock.warning {
-  color: #ff8800;
-  border-color: rgba(255, 136, 0, 0.3);
-}
-
-#fix-yt-clock.critical {
-  color: #ff4444;
-  border-color: rgba(255, 68, 68, 0.4);
-  animation: fix-yt-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes fix-yt-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
-}
-
-/* ===== Daily Limit Blocker Overlay ===== */
-
-#fix-yt-blocker {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483647;
-  background: #0f0f0f;
-  display: flex;
-  align-items: center;
+ytd-watch-flexy #columns {
   justify-content: center;
-  font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 16px !important;
 }
 
-.fix-yt-blocker-content {
-  text-align: center;
-  color: #f1f1f1;
-  max-width: 480px;
-  padding: 40px;
+ytd-watch-flexy #primary.ytd-watch-flexy {
+  max-width: 1100px !important;
 }
 
-.fix-yt-blocker-icon {
-  font-size: 64px;
-  margin-bottom: 24px;
-}
-
-#fix-yt-blocker h1 {
-  font-size: 32px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #fff;
-}
-
-#fix-yt-blocker p {
-  font-size: 18px;
-  color: #aaa;
-  line-height: 1.5;
-  margin-bottom: 8px;
-}
-
-#fix-yt-blocker strong {
-  color: #ff4444;
-}
-
-.fix-yt-blocker-sub {
-  margin-top: 12px !important;
-  font-size: 14px !important;
-  color: #666 !important;
-}
-
-/* ===== Break Reminder Overlay ===== */
-
-#fix-yt-break {
-  position: fixed;
+/* YouTube can retain stale inline video dimensions after SPA layout changes. */
+ytd-watch-flexy #movie_player .html5-video-container {
+  position: absolute;
   inset: 0;
-  z-index: 2147483646;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "YouTube Sans", "Roboto", -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 16px !important;
-  animation: fix-yt-fade-in 0.3s ease;
+  width: 100%;
+  height: 100%;
 }
 
-@keyframes fix-yt-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.fix-yt-break-content {
-  text-align: center;
-  color: #f1f1f1;
-  max-width: 420px;
-  padding: 40px;
-}
-
-.fix-yt-break-icon {
-  font-size: 56px;
-  margin-bottom: 20px;
-}
-
-#fix-yt-break h2 {
-  font-size: 26px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #fff;
-}
-
-#fix-yt-break p {
-  font-size: 16px;
-  color: #aaa;
-  line-height: 1.5;
-  margin-bottom: 6px;
-}
-
-#fix-yt-break strong {
-  color: #ff8800;
-}
-
-.fix-yt-break-sub {
-  font-size: 13px !important;
-  color: #666 !important;
-  margin-bottom: 24px !important;
-}
-
-#fix-yt-break-dismiss {
-  margin-top: 20px;
-  padding: 10px 28px;
-  border: 1px solid #444;
-  border-radius: 20px;
-  background: transparent;
-  color: #ccc;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#fix-yt-break-dismiss:hover {
-  border-color: #888;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+ytd-watch-flexy #movie_player .html5-main-video {
+  width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  object-fit: contain;
 }

@@ -1,125 +1,77 @@
-# Fix YouTube
+# Fix YouTube: hide Shorts and recommendations
 
-A Chrome extension that takes back control of your YouTube experience. No Shorts. No algorithmic homepage. No distractions. Just the content you subscribed to.
+Fix YouTube is a free, open-source browser extension that hides YouTube Shorts and recommendations, disables autoplay, and opens your Subscriptions feed by default. It has one fixed setup and nothing to configure.
 
-## Features
+Built for desktop Chrome and Helium, with a Firefox package available for testing. Version 0.3.0 is available for local installation; store publication is pending.
 
-- **Remove Shorts** — Hides Shorts shelves, sidebar links, search results, channel tabs, and notifications everywhere on YouTube. Redirects `/shorts/` URLs to the normal video player.
-- **Redirect Home to Subscriptions** — The YouTube logo and all home navigation points to `/feed/subscriptions` instead. The homepage is dead to you.
-- **Hide Suggested Videos** — Removes the related/recommended videos sidebar on watch pages and endscreen suggestions. The player expands to fill the space.
-- **Disable Autoplay** — Turns off auto-play next and hides the toggle so YouTube can't re-enable it
-- **Hide Trending / Explore** — Removes trending and explore from sidebar navigation
-- **Channel Blocklist** — Permanently hide videos from specific channels everywhere. Add channels by handle (`@channelname`) from the popup. Blocks apply across all tabs instantly.
-- **Subscriptions Only** — Filters recommendations, search results, and "Up next" to only show videos from channels you're subscribed to. Builds your subscription list from the sidebar guide and `/feed/channels`, caches it hourly.
-- **Custom YouTube Theming** — Personalize YouTube's appearance:
-  - Accent color: 8 preset colors (red, orange, yellow, green, blue, purple, pink, white) or YouTube default
-  - Font size: S / M / L / XL (85% to 130% scaling)
-  - Theme mode: force Dark, Light, or leave on Auto
-- **Thumbnail Declutter** — Hides overlay badges (NEW, LIVE, 4K), watch progress bars, and view count overlays on thumbnails. Normalizes ALL CAPS clickbait titles to sentence case when >60% of letters are uppercase.
-- **Hide Algorithmic Sections** — Removes "People also watched", "For you", "Recommended", "Breaking news", auto-generated Mixes, community posts, promoted shelves, and "Channels new to you" carousels. Matches section titles via JS and hides structural elements via CSS.
-- **Hide Comments** — Toggle to completely hide the comments section on watch pages.
-- **Disable Ambient Mode** — Turns off YouTube's ambient glow effect behind the video player.
-- **Cinema Mode Default** — Automatically activates theater/cinema mode on every video.
-- **Hide Notification Badge** — Removes the red notification count from the bell icon.
-- **Auto Scroll to Player** — Automatically scrolls the video player to the top of the page on every navigation.
-- **Pause on Tab Switch** — Pauses the video when you switch to another tab, resumes when you return.
-- **Confirm Before Closing** — Browser warning before closing a tab with a playing video.
-- **Playback Speed Default** — Force a default playback speed (1x / 1.25x / 1.5x / 1.75x / 2x) on all videos. Applied once per video so manual changes aren't overridden.
-- **Grid Layout Control** — Set videos per row (2-6) or leave on Auto
-- **Daily Usage Timer** — Separate weekday and weekend limits (30m / 1h / 1.5h / 2h) with:
-  - Live countdown clock overlay on the page
-  - Color-coded warnings (orange at 25%, red pulsing at 0%)
-  - Full-screen blocker when time runs out — pauses video and locks the page
-  - Per-day schedules: different limits for weekdays vs. weekends (default 1h / 2h)
-  - Resets at midnight automatically
-- **Focus Mode** — One-click toggle (`Alt+D`) that enables all distraction blockers at once: Shorts, sidebar, autoplay, trending, algorithmic sections, declutter, and subscriptions-only. Snapshots your settings on activate, restores them on deactivate.
-- **Keyboard Shortcuts** — Quick toggles without opening the popup:
-  - `Alt+D` — Toggle Focus Mode
-  - `Alt+S` — Toggle suggested videos sidebar
-  - `Alt+F` — Toggle subscriptions-only filter
-  - `Alt+T` — Toggle daily usage timer
-  - Customizable via `chrome://extensions/shortcuts`
-- **Break Reminders** — Gentle nudge after continuous watching (15m / 25m / 45m / 1h). Pauses video, shows a dismissable overlay. Resets when you leave the tab for 30+ seconds or dismiss the reminder.
-- **Watch History Dashboard** — Tracks every video you watch (title, channel, duration). Opens in a full tab with:
-  - Today / this week total watch time
-  - Top channels by watch time
-  - Recent 50 videos with duration and timestamp
-  - Auto-prunes entries older than 30 days
-  - Clear all history button
-- **Export/Import Settings** — Download your configuration as a JSON file, share it, or restore it on another machine. Import validates keys so unknown data is safely ignored.
-- **Popup Settings Panel** — Dark-themed control panel with toggles for every feature. Changes apply instantly, no reload needed.
+[Install](#install-locally) · [Privacy](PRIVACY.md) · [Report a problem](https://github.com/LLRHook/fix-youtube/issues) · [Development](docs/DEVELOPMENT.md)
 
-## Install
+![Fix YouTube extension overview with its single Open YouTube action](docs/store/01-overview.png)
 
-### Chrome
-1. Clone or download this repo
-2. Open `chrome://extensions`
-3. Enable **Developer mode** (top-right toggle)
-4. Click **Load unpacked** and select this folder
-5. Click the extension icon to configure features
+## What it does
+
+- Opens Subscriptions when you visit Home or click the YouTube logo.
+- Hides Shorts in navigation, feeds, search results, and channel tabs. Direct Shorts links open in the normal player.
+- Removes watch-page recommendations and end-screen suggestions.
+- Switches autoplay off and hides its toggle.
+- Removes selected recommendation shelves and Mixes from search.
+
+Search, comments, channel pages, playlist queues, and live chat remain available. The player uses the space left by the recommendations. YouTube's own theme, captions, speed, and theater/fullscreen controls remain yours.
+
+The popup has one action: **Open YouTube**. Disable or remove the extension through your browser to return to ordinary YouTube.
+
+Subscriptions require a YouTube sign-in. You can still search and watch public videos while signed out. This extension targets desktop YouTube, not YouTube Music, mobile YouTube, or embedded players.
+
+## Install locally
+
+Download and extract the [source ZIP](https://github.com/LLRHook/fix-youtube/archive/refs/heads/main.zip), or clone this repository. Building requires Python 3.9 or later and no extra Python packages. Run the build command from the extracted project folder.
+
+### Chrome or Helium
+
+1. Run `python build.py chrome`, or use the already-built `dist-chrome` folder.
+2. Open `chrome://extensions` and turn on Developer mode.
+3. Choose **Load unpacked** and select `dist-chrome`.
+4. Reload any YouTube tabs that were already open.
+
+Requires Chromium 105 or later. The unpacked folder must stay in place.
 
 ### Firefox
-1. Clone or download this repo
-2. Run `./build.sh firefox` (or manually copy `manifest.firefox.json` to `manifest.json`)
-3. Open `about:debugging#/runtime/this-firefox`
-4. Click **Load Temporary Add-on** and select `manifest.json` from the `dist-firefox/` folder
-5. Click the extension icon to configure features
 
-### Build Script
-```bash
-./build.sh chrome   # → dist-chrome/
-./build.sh firefox  # → dist-firefox/
-```
+1. Run `python build.py firefox`.
+2. Open `about:debugging#/runtime/this-firefox`.
+3. Choose **Load Temporary Add-on** and select `dist-firefox/manifest.json`.
+4. Reload open YouTube tabs.
 
-## How It Works
+Requires Firefox 142 or later. Temporary add-ons are removed when Firefox closes. Permanent installation requires Mozilla signing.
 
-All features use a **CSS class toggle pattern**: the content script sets classes like `.fix-yt-hide-shorts` on the `<html>` element, and CSS rules activate based on those classes. This means features toggle instantly without page reloads.
+## Common questions
 
-The subscription redirect works on two layers:
-- `declarativeNetRequest` intercepts `youtube.com/` at the network level before the page loads
-- Content script catches SPA navigations via YouTube's `yt-navigate-finish` event
+### Does it remove all access to Shorts?
 
-The daily timer only counts seconds while the YouTube tab is visible (`document.visibilityState`), saves progress to `chrome.storage.local` every 5 seconds, and persists across tabs and sessions.
+It hides Shorts buttons, shelves, search results, and channel tabs. If you open a direct Shorts link, the video opens in YouTube's regular player. The scrolling Shorts interface is removed; the underlying video remains accessible.
 
-## Roadmap
+### Can I choose which features to enable?
 
-Features under consideration for future releases:
+No. Every installation uses the same cleanup rules. YouTube's own playback controls and theme are still available.
 
-- [x] **Custom YouTube Theming** — Dark/light mode overrides, custom accent colors, font sizes, and overall page styling to make YouTube look the way you want
-- [x] **Watch History Dashboard** — Track what you've watched, how long, and surface patterns in your viewing habits
-- [x] **Channel Allowlist/Blocklist** — Only show videos from specific channels, or hide channels you never want to see
-- [x] **Keyboard Shortcuts** — Quick toggles for features without opening the popup
-- [x] **Per-Day Timer Schedules** — Different time limits for weekdays vs. weekends
-- [x] **Break Reminders** — Gentle nudge after X minutes of continuous watching before the hard lockout
-- [x] **Firefox Support** — Port to Firefox with WebExtension compatibility
-- [x] **Hide "People Also Watched" / Algorithmic Sections** — Remove any remaining algorithmic content sections from feeds
-- [x] **Thumbnail Declutter** — Hide clickbait indicators like excessive capitalization or view count badges
-- [x] **Export/Import Settings** — Share your configuration across devices or with friends
+### Is this a YouTube ad blocker?
 
-### Next Up
+No. Fix YouTube removes discovery distractions and changes navigation. It does not block ads.
 
-- [x] **Focus Mode** — One-click toggle that enables all distraction blockers at once for deep focus sessions
-- [x] **Playback Speed Default** — Force a default playback speed (1x–2x) on all videos
-- [x] **Hide Comments** — Toggle to hide the comments section entirely
-- [x] **Disable Ambient Mode** — Turn off YouTube's ambient glow effect behind the player
-- [x] **Cinema Mode Default** — Always open videos in theater/cinema mode
+### What if Shorts reappear after a YouTube update?
 
-### v3
+Refresh the page after updating or reloading the extension. If the problem remains, [open an issue](https://github.com/LLRHook/fix-youtube/issues) with your browser version, extension version, and the affected page type. Crop account details out of any screenshot you share.
 
-- [x] **Redirect Shorts to Watch** — Rewrite /shorts/ URLs to play as normal videos in the standard player
-- [x] **Hide Notification Badge** — Remove the red notification count from the bell icon
-- [x] **Auto Scroll to Player** — On watch pages, auto-scroll so the video player is flush with the top
-- [x] **Pause on Tab Switch** — Auto-pause video when switching to another tab, resume when returning
-- [x] **Confirm Before Closing** — Warn before closing a tab with a playing video
+## Privacy
 
-## Tech Stack
+Fix YouTube does not record watch history, store preferences, run analytics, or send data to a service. Its code runs locally on desktop YouTube. See [the privacy statement](PRIVACY.md).
 
-- Manifest V3 Chrome Extension
-- Vanilla JS + CSS (zero dependencies)
-- `chrome.storage.sync` for settings
-- `chrome.storage.local` for daily timer state
-- `declarativeNetRequest` for network-level redirects
+Version 0.3.0 ignores preferences from earlier versions and removes their dynamic redirect rules on update. Old browser-managed extension storage may remain until the extension is uninstalled; this version does not access it.
 
-## License
+## Development and release status
 
-MIT
+The extension uses plain JavaScript and CSS, with no runtime or npm project dependencies. See the [development guide](docs/DEVELOPMENT.md) for tests, packaging, and the file layout, and the [distribution checklist](DISTRIBUTION.md) for store submission.
+
+Installed Helium checks cover redirects, Shorts removal, navigation, and the popup. Full playback verification is incomplete: new videos also buffered with the extension disabled. Firefox package validation passed; native Firefox testing is still pending. The [verification record](docs/VERIFICATION.md) lists the evidence and remaining checks.
+
+[MIT license](LICENSE). Fix YouTube is an independent extension and is not affiliated with YouTube or Google.

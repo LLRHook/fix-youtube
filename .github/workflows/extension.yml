@@ -13,32 +13,23 @@ jobs:
   package:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Validate manifests
-        run: |
-          python -m json.tool manifest.json >/dev/null
-          python -m json.tool manifest.firefox.json >/dev/null
-
-      - name: Build browser packages
-        run: |
-          bash ./build.sh chrome
-          bash ./build.sh firefox
-
-      - name: Create store zip files
-        run: |
-          (cd dist-chrome && zip -qr ../fix-youtube-chrome.zip .)
-          (cd dist-firefox && zip -qr ../fix-youtube-firefox.zip .)
-
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Test behavior and package contracts
+        run: npm test
+      - name: Build and validate browser ZIPs
+        run: python3 build.py
       - name: Upload extension packages
         uses: actions/upload-artifact@v4
         with:
           name: fix-youtube-packages
           path: |
-            dist-chrome/
-            dist-firefox/
             fix-youtube-chrome.zip
             fix-youtube-firefox.zip
+            fix-youtube-submission-*.zip
+          if-no-files-found: error
