@@ -1,0 +1,91 @@
+﻿<!doctype html>
+<meta charset="utf-8">
+<title>Fix YouTube browser regression checks</title>
+<link rel="stylesheet" href="../styles.css">
+<style>body{font:14px system-ui;padding:24px}ytd-watch-flexy,ytd-video-renderer,ytd-search,ytd-shelf-renderer,ytd-rich-shelf-renderer,ytd-playlist-panel-renderer,ytd-live-chat-frame,ytd-engagement-panel-section-list-renderer{display:block}[hidden]{display:none!important}.pass{color:green}.fail{color:red}</style>
+<h1>Browser regression checks</h1><ol id="results"></ol>
+<div id="fixtures">
+<ytd-topbar-logo-renderer><a href="/">Home</a></ytd-topbar-logo-renderer>
+<ytd-guide-entry-renderer id="sidebar-short"><a title="Shorts" role="link">Shorts</a></ytd-guide-entry-renderer>
+<ytd-mini-guide-entry-renderer id="mini-sidebar-short"><a title="Shorts" role="link">Shorts</a></ytd-mini-guide-entry-renderer>
+<ytd-guide-entry-renderer id="sidebar-subscriptions"><a title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
+<a id="ordinary-shorts-title" title="Shorts" href="/watch?v=ordinary">A regular video named Shorts</a>
+<ytd-search>
+  <ytd-video-renderer id="ordinary"><a href="/watch?v=example">Ordinary search result</a></ytd-video-renderer>
+  <ytd-video-renderer id="short"><a href="/shorts/example">Short</a></ytd-video-renderer>
+  <grid-shelf-view-model id="modern-shelf"><ytm-shorts-lockup-view-model-v2><ytm-shorts-lockup-view-model id="modern-short"><a href="/shorts/modern">Modern Short</a></ytm-shorts-lockup-view-model></ytm-shorts-lockup-view-model-v2></grid-shelf-view-model>
+  <ytd-shelf-renderer id="shelf"><span id="title">For you</span></ytd-shelf-renderer>
+</ytd-search>
+<ytd-browse page-subtype="channels"><ytd-rich-shelf-renderer id="channel-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
+<ytd-watch-flexy><div id="columns">
+<div id="primary"><div id="comments">Comments</div><button class="ytp-play-button">Play</button>
+<div id="movie_player" style="position:relative;width:320px;height:180px"><div class="html5-video-container"><video class="html5-main-video" style="position:absolute;width:200px;height:100px"></video></div></div>
+<div class="ytp-autonav-toggle-button-container"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div></div>
+<div id="secondary"><div id="related">Recommended videos</div>
+<ytd-playlist-panel-renderer hidden>Queue</ytd-playlist-panel-renderer>
+<ytd-live-chat-frame hide-chat-frame>Chat</ytd-live-chat-frame>
+<ytd-engagement-panel-section-list-renderer visibility="ENGAGEMENT_PANEL_VISIBILITY_HIDDEN">Transcript</ytd-engagement-panel-section-list-renderer>
+</div></div></ytd-watch-flexy>
+</div>
+<script>
+const toggle = document.querySelector(".ytp-autonav-toggle-button");
+toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggle.getAttribute("aria-checked") === "true" ? "false" : "true"));
+</script>
+<script src="../content.js"></script>
+<script>
+(async () => {
+  const results = [];
+  const check = (name, condition) => {
+    results.push({name, pass: !!condition});
+    const li = document.createElement("li"); li.className = condition ? "pass" : "fail";
+    li.textContent = (condition ? "PASS: " : "FAIL: ") + name;
+    document.querySelector("#results").appendChild(li);
+  };
+  const visible = selector => document.querySelector(selector).checkVisibility();
+  const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  await frame();
+  check("Normal search result remains visible", visible("#ordinary"));
+  check("Expanded Shorts shortcut without href is hidden", !visible("#sidebar-short"));
+  check("Collapsed Shorts shortcut without href is hidden", !visible("#mini-sidebar-short"));
+  check("Subscriptions shortcut remains visible", visible("#sidebar-subscriptions"));
+  check("Shorts title outside navigation remains visible", visible("#ordinary-shorts-title"));
+  check("Shorts search result is hidden", !visible("#short"));
+  check("Current desktop Shorts cards and their shelf are hidden", !visible("#modern-short") && !visible("#modern-shelf"));
+  check("Recommendations are hidden", !visible("#related"));
+  check("Empty secondary column collapses", !visible("#secondary"));
+  check("Comments remain visible", visible("#comments"));
+  check("Play control remains visible", visible(".ytp-play-button"));
+  const videoSize = document.querySelector("video").getBoundingClientRect();
+  check("Video fills the player after layout changes", videoSize.width === 320 && videoSize.height === 180);
+  check("Autoplay is switched off", toggle.getAttribute("aria-checked") === "false");
+  check("Autoplay control is hidden", !visible(".ytp-autonav-toggle-button-container"));
+  check("Logo opens subscriptions", document.querySelector("ytd-topbar-logo-renderer a").getAttribute("href") === "/feed/subscriptions");
+  check("Algorithmic search shelf is hidden", !visible("#shelf"));
+  check("Channel content is preserved", visible("#channel-shelf"));
+  document.querySelector("#shelf #title").textContent = "Latest uploads";
+  await frame();
+  check("Reused shelf with a normal title is restored", visible("#shelf"));
+  const queue = document.querySelector("ytd-playlist-panel-renderer");
+  queue.hidden = false;
+  check("Playlist queue retains secondary column", visible("#secondary") && visible("ytd-playlist-panel-renderer"));
+  queue.hidden = true;
+  const chat = document.querySelector("ytd-live-chat-frame");
+  chat.removeAttribute("hide-chat-frame");
+  check("Live chat retains secondary column", visible("#secondary") && visible("ytd-live-chat-frame"));
+  chat.setAttribute("hide-chat-frame", "");
+  const panel = document.querySelector("ytd-engagement-panel-section-list-renderer");
+  panel.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+  check("Open transcript panel retains secondary column", visible("#secondary"));
+  panel.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
+  const late = document.createElement("ytd-video-renderer");
+  late.innerHTML = '<a href="/shorts/late">Late Short</a>';
+  document.querySelector("ytd-search").appendChild(late);
+  check("New Shorts results are hidden automatically", !late.checkVisibility());
+  await new Promise(resolve => setTimeout(resolve, 600));
+  toggle.setAttribute("aria-checked", "true");
+  await frame();
+  check("Autoplay is disabled again if YouTube re-enables it", toggle.getAttribute("aria-checked") === "false");
+  window.testResults = results;
+  document.title = results.every(result => result.pass) ? "PASS - Fix YouTube browser checks" : "FAIL - Fix YouTube browser checks";
+})();
+</script>

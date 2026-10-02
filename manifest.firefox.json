@@ -1,16 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Fix YouTube",
-  "version": "0.2.0",
-  "description": "Removes Shorts, redirects to Subscriptions, hides distractions, and gives you control over your YouTube experience.",
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "fix-youtube@fixyt.dev",
-      "strict_min_version": "109.0"
-    }
-  },
-  "permissions": ["declarativeNetRequest", "storage"],
-  "host_permissions": ["*://*.youtube.com/*"],
+  "version": "0.3.0",
+  "description": "Hide YouTube Shorts and recommendations, disable autoplay, and open Subscriptions by default. No settings or setup.",
+  "permissions": [
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://www.youtube.com/*",
+    "*://youtube.com/*"
+  ],
   "declarative_net_request": {
     "rule_resources": [
       {
@@ -21,43 +20,54 @@
     ]
   },
   "action": {
+    "default_title": "Fix YouTube",
     "default_popup": "popup.html",
     "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
-      "css": ["styles.css"],
-      "js": ["content.js"],
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://youtube.com/*"
+      ],
+      "exclude_matches": [
+        "*://www.youtube.com/embed/*",
+        "*://youtube.com/embed/*"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start"
     }
   ],
   "background": {
-    "scripts": ["background.js"]
-  },
-  "commands": {
-    "toggle-sidebar": {
-      "suggested_key": { "default": "Alt+S" },
-      "description": "Toggle suggested videos sidebar"
-    },
-    "toggle-subs-only": {
-      "suggested_key": { "default": "Alt+F" },
-      "description": "Toggle subscriptions-only filter"
-    },
-    "toggle-timer": {
-      "suggested_key": { "default": "Alt+T" },
-      "description": "Toggle daily usage timer"
-    },
-    "toggle-focus": {
-      "suggested_key": { "default": "Alt+D" },
-      "description": "Toggle Focus Mode"
-    }
+    "scripts": [
+      "background.js"
+    ]
   },
   "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fix-youtube@fixyt.dev",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
   }
 }
