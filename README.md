@@ -2,7 +2,7 @@
 
 Fix YouTube is a free, open-source browser extension that hides YouTube Shorts and recommendations, disables autoplay, and opens your Subscriptions feed by default. It has one fixed setup and nothing to configure.
 
-Built for desktop Chrome and Helium, with a Firefox package available for testing. Version 0.3.0 is available for local installation; store publication is pending.
+Built for desktop Chrome, Helium and Firefox. Version 0.3.0 is available from [GitHub releases](https://github.com/LLRHook/fix-youtube/releases) for local installation; store publication is pending.
 
 [Install](#install-locally) · [Privacy](PRIVACY.md) · [Report a problem](https://github.com/LLRHook/fix-youtube/issues) · [Development](docs/DEVELOPMENT.md)
 
@@ -24,23 +24,23 @@ Subscriptions require a YouTube sign-in. You can still search and watch public v
 
 ## Install locally
 
-Download and extract the [source ZIP](https://github.com/LLRHook/fix-youtube/archive/refs/heads/main.zip), or clone this repository. Building requires Python 3.9 or later and no extra Python packages. Run the build command from the extracted project folder.
+Download `fix-youtube-chrome-<version>.zip` or `fix-youtube-firefox-<version>.zip` from the [latest release](https://github.com/LLRHook/fix-youtube/releases/latest) and extract it into a folder you will keep. `SHA256SUMS.txt` lists each ZIP's checksum.
+
+To build from source instead, clone this repository and run `python build.py chrome` or `python build.py firefox` (Python 3.9+, no extra packages). This creates `dist-chrome` or `dist-firefox`.
 
 ### Chrome or Helium
 
-1. Run `python build.py chrome`, or use the already-built `dist-chrome` folder.
-2. Open `chrome://extensions` and turn on Developer mode.
-3. Choose **Load unpacked** and select `dist-chrome`.
-4. Reload any YouTube tabs that were already open.
+1. Open `chrome://extensions` and turn on Developer mode.
+2. Choose **Load unpacked** and select the extracted folder (or `dist-chrome`).
+3. Reload any YouTube tabs that were already open.
 
 Requires Chromium 105 or later. The unpacked folder must stay in place.
 
 ### Firefox
 
-1. Run `python build.py firefox`.
-2. Open `about:debugging#/runtime/this-firefox`.
-3. Choose **Load Temporary Add-on** and select `dist-firefox/manifest.json`.
-4. Reload open YouTube tabs.
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Choose **Load Temporary Add-on** and select `manifest.json` in the extracted folder (or `dist-firefox`).
+3. Reload open YouTube tabs.
 
 Requires Firefox 142 or later. Temporary add-ons are removed when Firefox closes. Permanent installation requires Mozilla signing.
 
@@ -70,8 +70,8 @@ Version 0.3.0 ignores preferences from earlier versions and removes their dynami
 
 ## Development and release status
 
-The extension uses plain JavaScript and CSS, with no runtime or npm project dependencies. See the [development guide](docs/DEVELOPMENT.md) for tests, packaging, and the file layout, and the [distribution checklist](DISTRIBUTION.md) for store submission.
+The extension uses plain JavaScript and CSS, with no runtime dependencies; Puppeteer is used only for tests. See the [development guide](docs/DEVELOPMENT.md) for tests, packaging, and the file layout, and the [distribution checklist](DISTRIBUTION.md) for store submission.
 
-Installed Helium checks cover redirects, Shorts removal, navigation, and the popup. Full playback verification is incomplete: new videos also buffered with the extension disabled. Firefox package validation passed; native Firefox testing is still pending. The [verification record](docs/VERIFICATION.md) lists the evidence and remaining checks.
+CI tests the installed extension in Chrome and Firefox: redirects, injection, upgrade from 0.2.0, restart, disable and uninstall. Live checks on YouTube cover playback, captions, theater/fullscreen, playlists, live chat, and German and Japanese layouts. Recommendation-shelf removal in search matches English shelf titles only. The [verification record](docs/VERIFICATION.md) lists the evidence and tested browser versions.
 
 [MIT license](LICENSE). Fix YouTube is an independent extension and is not affiliated with YouTube or Google.

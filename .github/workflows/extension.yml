@@ -3,6 +3,7 @@ name: Extension Package
 on:
   push:
     branches: [main]
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -12,18 +13,31 @@ permissions:
 jobs:
   package:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # The upgrade test builds the 0.2.0 release from history.
+          fetch-depth: 0
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: npm
+      - name: Install test tools and browsers
+        run: npm ci
       - name: Test behavior and package contracts
         run: npm test
       - name: Build and validate browser ZIPs
         run: python3 build.py
+      - name: Validate Firefox package
+        run: npx --yes web-ext@10.7.0 lint --source-dir dist-firefox --warnings-as-errors --output text
+      - name: Allow the Chrome sandbox
+        # Ubuntu 24.04 blocks the unprivileged namespaces Chrome's sandbox needs.
+        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+      - name: Test installed extensions in Chrome and Firefox
+        run: npm run test:e2e
       - name: Upload extension packages
         uses: actions/upload-artifact@v4
         with:
@@ -33,3 +47,32 @@ jobs:
             fix-youtube-firefox.zip
             fix-youtube-submission-*.zip
           if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download tested packages
+        uses: actions/download-artifact@v4
+        with:
+          name: fix-youtube-packages
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(jq -r .version manifest.json)
+          test "$TAG" = "v$version" || { echo "Tag $TAG does not match manifest version $version"; exit 1; }
+          packages="fix-youtube-chrome-$version.zip fix-youtube-firefox-$version.zip"
+          mv fix-youtube-chrome.zip "fix-youtube-chrome-$version.zip"
+          mv fix-youtube-firefox.zip "fix-youtube-firefox-$version.zip"
+          sha256sum $packages > SHA256SUMS.txt
+          awk '/^## Release notes/{f=1;next} /^## /{f=0} f' docs/store/LISTING.md > notes.md
+          gh release create "$TAG" --title "Fix YouTube $version" --notes-file notes.md \
+            $packages SHA256SUMS.txt

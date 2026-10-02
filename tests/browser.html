@@ -8,6 +8,7 @@
 <ytd-topbar-logo-renderer><a href="/">Home</a></ytd-topbar-logo-renderer>
 <ytd-guide-entry-renderer id="sidebar-short"><a title="Shorts" role="link">Shorts</a></ytd-guide-entry-renderer>
 <ytd-mini-guide-entry-renderer id="mini-sidebar-short"><a title="Shorts" role="link">Shorts</a></ytd-mini-guide-entry-renderer>
+<ytd-guide-entry-renderer id="localized-sidebar-short"><a title="ショート" role="link"><yt-icon><svg viewBox="0 0 24 24"><path d="m13.467 1.19-8 4.7a5 5 0 00-.255 8.46"></path></svg></yt-icon>ショート</a></ytd-guide-entry-renderer>
 <ytd-guide-entry-renderer id="sidebar-subscriptions"><a title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
 <a id="ordinary-shorts-title" title="Shorts" href="/watch?v=ordinary">A regular video named Shorts</a>
 <ytd-search>
@@ -47,6 +48,7 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   check("Normal search result remains visible", visible("#ordinary"));
   check("Expanded Shorts shortcut without href is hidden", !visible("#sidebar-short"));
   check("Collapsed Shorts shortcut without href is hidden", !visible("#mini-sidebar-short"));
+  check("Localized Shorts shortcut is hidden by its icon", !visible("#localized-sidebar-short"));
   check("Subscriptions shortcut remains visible", visible("#sidebar-subscriptions"));
   check("Shorts title outside navigation remains visible", visible("#ordinary-shorts-title"));
   check("Shorts search result is hidden", !visible("#short"));

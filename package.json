@@ -10,9 +10,13 @@
   },
   "scripts": {
     "test": "node --test",
-    "build": "python build.py"
+    "build": "python build.py",
+    "test:e2e": "node --test --test-concurrency=1 \"tests/e2e/*.e2e.js\""
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "puppeteer": "25.12.0"
   }
 }

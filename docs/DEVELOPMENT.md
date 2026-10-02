@@ -1,33 +1,33 @@
 # Developing Fix YouTube
 
-The runtime is plain JavaScript, CSS, and HTML. Node 20+ runs the tests; Python 3.9+ builds the packages using its standard library. There are no project dependencies to install.
+The runtime is plain JavaScript, CSS, and HTML with no dependencies. Python 3.9+ builds the packages using its standard library. Node 22.12+ runs the tests. The only development dependency is Puppeteer. `npm ci` installs it with its pinned Chrome for Testing and Firefox builds, configured in `.puppeteerrc.cjs`.
 
 ## Tests and builds
 
 Run these commands from the repository root:
 
 ```sh
+npm ci
 npm test
 python build.py
+npm run test:e2e
 ```
 
 To build one browser, use `python build.py chrome` or `python build.py firefox`. `build.sh` is a compatibility wrapper for systems with Bash and `python3`.
 
 The build creates `dist-chrome/`, `dist-firefox/`, and a ZIP for each browser. Building both also creates a versioned submission ZIP with the store assets, documentation, and checksums. Each browser ZIP has its manifest at the root. Generated folders and ZIPs are ignored by Git.
 
-GitHub Actions runs the Node tests, builds both packages, and uploads the browser ZIPs and submission bundle as one workflow artifact. Store upload remains a separate step; see [distribution](../DISTRIBUTION.md).
+GitHub Actions runs the Node tests, builds both packages, validates the Firefox package, and runs the installed-extension tests in Chrome and Firefox. It then uploads the browser ZIPs and submission bundle as one workflow artifact. A `v*` tag also publishes a GitHub release; see [distribution](../DISTRIBUTION.md#releasing).
 
-## Browser regression checks
+## Installed-extension tests
 
-Open `tests/browser.html` directly in a desktop browser, or serve the project locally:
+`npm run test:e2e` loads `dist-chrome` and `dist-firefox` into real browsers, so build first. The tests reach a local HTTPS stand-in for YouTube through a proxy, which logs every request. This shows whether a redirect came from the browser's network rules or the content script. They require `openssl` on `PATH` to create a throwaway certificate. Set `E2E_BROWSERS=chrome` or `E2E_BROWSERS=firefox` to run one browser.
 
-```sh
-python -m http.server 8766 --bind 127.0.0.1
-```
+The tests also run the `tests/browser.html` DOM/CSS fixture in each browser. You can open that file directly for debugging. Its fixtures cover Shorts buttons without URLs, localized sidebar entries, reused renderers, player dimensions, and preservation of native panels.
 
-Then open `http://localhost:8766/tests/browser.html`. Every listed check should pass. These fixtures exercise real DOM and CSS, including Shorts buttons without URLs, reused renderers, player dimensions, and preservation of native panels.
+The upgrade test builds the 0.2.0 release from Git history, so it needs a full clone.
 
-The fixtures supplement live YouTube testing. Load the built extension and follow the [browser smoke checks](../DISTRIBUTION.md#browser-smoke-checks) before a release. Record observed results and limitations in [VERIFICATION.md](VERIFICATION.md).
+These tests supplement live YouTube testing. Before a release, load the built extension and follow the [browser smoke checks](../DISTRIBUTION.md#browser-smoke-checks). Record observed results and limitations in [VERIFICATION.md](VERIFICATION.md).
 
 ## File layout
 
@@ -40,6 +40,7 @@ The fixtures supplement live YouTube testing. Load the built extension and follo
 | `background.js` | Remove legacy configurable redirect rules during installation or update |
 | `popup.html`, `icons/` | Fixed popup and extension artwork |
 | `tests/` | Node behavior/package checks and the browser regression fixture |
+| `tests/e2e/` | Installed-extension tests and their fake-YouTube harness |
 | `build.py`, `build.sh` | Allowlisted packaging and submission bundle generation |
 | `docs/store/` | Listing copy, screenshots, promotional artwork, and screenshot source |
 
