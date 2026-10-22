@@ -7,14 +7,18 @@ const source = fs.readFileSync(require("node:path").join(__dirname, "../content.
 function load(pathname, options = {}) {
   const events = {}, windowEvents = {}, frames = [], redirects = [], timers = [];
   let observe, observerCallback, clicks = 0, now = 1000;
+  let checked = !!options.toggle, acceptsClicks = !!options.toggleResponds;
   const links = options.links || [];
   const shelves = options.shelves || [];
-  const toggle = options.toggle ? { click() { clicks++; } } : null;
+  const toggle = options.toggle ? {
+    getAttribute: () => String(checked),
+    click() { clicks++; if (acceptsClicks) checked = false; },
+  } : null;
   const document = {
     documentElement: options.noRoot ? null : {},
     addEventListener(name, fn) { events[name] = fn; },
     querySelectorAll(selector) { return selector.startsWith("ytd-topbar") ? links : shelves; },
-    querySelector() { return toggle; },
+    querySelector() { return checked ? toggle : null; },
   };
   const window = { addEventListener(name, fn) { windowEvents[name] = fn; } };
   window.top = options.iframe ? {} : window;
@@ -30,7 +34,9 @@ function load(pathname, options = {}) {
   });
   return {events, windowEvents, frames, redirects, timers, location, document,
     mutate: () => observerCallback(), config: () => observe,
-    clicks: () => clicks, advance: () => { now += 600; }};
+    clicks: () => clicks, advance: () => { now += 600; },
+    attachToggleHandler: () => { acceptsClicks = true; },
+    setChecked: value => { checked = value; }, checked: () => checked};
 }
 
 test("homepage redirects immediately without starting a DOM observer", () => {
@@ -71,7 +77,7 @@ test("DOM updates are coalesced and autoplay changes are observed", () => {
   const page = load("/watch");
   page.mutate(); page.mutate(); page.mutate();
   assert.equal(page.frames.length, 1);
-  assert.deepEqual(Array.from(page.config().attributeFilter), ["aria-checked", "href"]);
+  assert.deepEqual(Array.from(page.config().attributeFilter), ["aria-checked", "href", "page-subtype"]);
   page.frames.shift()();
   page.mutate();
   assert.equal(page.frames.length, 1);
@@ -89,6 +95,39 @@ test("autoplay click is rate limited while YouTube updates its state", () => {
   assert.equal(page.clicks(), 2);
 });
 
+test("autoplay retries an ignored click without waiting for another DOM mutation", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), true);
+  assert.equal(page.timers.length, 1);
+  // YouTube attaches its handler after the extension's first click.
+  page.attachToggleHandler();
+  page.advance();
+  page.timers.shift()();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 2);
+  assert.equal(page.checked(), false);
+  assert.equal(page.timers.length, 0);
+});
+
+test("an autoplay retry never clicks a toggle that has already switched off", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.timers.length, 1);
+  page.setChecked(false);
+  page.advance();
+  page.timers.shift()();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.timers.length, 0);
+});
+
+test("a successful autoplay click does not schedule another attempt", () => {
+  const page = load("/watch", {toggle: true, toggleResponds: true});
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+  assert.equal(page.timers.length, 0);
+});
+
 test("home links are rewritten without repeatedly mutating the same href", () => {
   let href = "/", changes = 0;
   const page = load("/watch", {links: [{
@@ -103,6 +142,7 @@ test("home links are rewritten without repeatedly mutating the same href", () =>
 test("reused shelves are rechecked and ordinary channel titles are preserved", () => {
   let title = "For you", hidden;
   const shelf = {
+    matches: () => true,
     querySelector: () => ({ textContent: title }),
     classList: { toggle: (name, value) => { hidden = value; } },
   };

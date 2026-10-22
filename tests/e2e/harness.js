@@ -17,8 +17,8 @@ const PAGE = `<!doctype html><meta charset="utf-8"><title>YouTube fixture</title
 <style>ytd-video-renderer,ytd-guide-entry-renderer,ytd-watch-flexy,#secondary{display:block}</style>
 <ytd-topbar-logo-renderer><a id="logo" href="/">YouTube</a></ytd-topbar-logo-renderer>
 <ytd-guide-entry-renderer id="nav-shorts"><a title="Shorts">Shorts</a></ytd-guide-entry-renderer>
-<ytd-video-renderer id="ordinary"><a href="/watch?v=ordinary">Video</a></ytd-video-renderer>
-<ytd-video-renderer id="short"><a href="/shorts/Ab_c-D12345">Short</a></ytd-video-renderer>
+<ytd-video-renderer id="ordinary"><a id="video-title" href="/watch?v=ordinary">Video</a></ytd-video-renderer>
+<ytd-video-renderer id="short"><a id="thumbnail" href="/shorts/Ab_c-D12345">Short</a></ytd-video-renderer>
 <ytd-watch-flexy><div id="secondary"><div id="related">Up next</div></div></ytd-watch-flexy>
 <div class="ytp-autonav-toggle-button-container"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div>
 <script>document.querySelector(".ytp-autonav-toggle-button").onclick = e => e.target.setAttribute("aria-checked", "false");</script>`;
