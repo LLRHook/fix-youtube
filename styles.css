@@ -17,10 +17,11 @@ ytd-guide-entry-renderer:has(a[title="Shorts" i]),
 ytd-mini-guide-entry-renderer:has(a[title="Shorts" i]),
 ytd-guide-entry-renderer:has(path[d^="m13.467 1.19-8 4.7"]),
 ytd-mini-guide-entry-renderer:has(path[d^="m13.467 1.19-8 4.7"]),
-ytd-video-renderer:has(a[href^="/shorts/"]),
-ytd-compact-video-renderer:has(a[href^="/shorts/"]),
-ytd-grid-video-renderer:has(a[href^="/shorts/"]),
-ytd-rich-item-renderer:has(a[href^="/shorts/"]),
+/* Match card destinations, not Shorts links in an ordinary video's description. */
+ytd-video-renderer:has(:is(a#thumbnail, a#video-title)[href^="/shorts/"]),
+ytd-compact-video-renderer:has(:is(a#thumbnail, a#video-title)[href^="/shorts/"]),
+ytd-grid-video-renderer:has(:is(a#thumbnail, a#video-title)[href^="/shorts/"]),
+ytd-rich-item-renderer:has(:is(a#thumbnail, a#video-title)[href^="/shorts/"]),
 yt-lockup-view-model:has(a[href^="/shorts/"]),
 ytd-notification-renderer:has(a[href^="/shorts/"]) {
   display: none !important;

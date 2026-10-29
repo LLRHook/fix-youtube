@@ -23,7 +23,7 @@ GitHub Actions runs the Node tests, builds both packages, validates the Firefox 
 
 `npm run test:e2e` loads `dist-chrome` and `dist-firefox` into real browsers, so build first. The tests reach a local HTTPS stand-in for YouTube through a proxy, which logs every request. This shows whether a redirect came from the browser's network rules or the content script. They require `openssl` on `PATH` to create a throwaway certificate. Set `E2E_BROWSERS=chrome` or `E2E_BROWSERS=firefox` to run one browser.
 
-The tests also run the `tests/browser.html` DOM/CSS fixture in each browser. You can open that file directly for debugging. Its fixtures cover Shorts buttons without URLs, localized sidebar entries, reused renderers, player dimensions, and preservation of native panels.
+The tests also run the `tests/browser.html` DOM/CSS fixture in each browser. You can open that file directly for debugging. Its fixtures cover Shorts buttons without URLs, localized sidebar entries, ordinary videos with Shorts links in their descriptions, shelves reused across search/channel/Subscriptions views, delayed autoplay click handlers, player dimensions, and preservation of native panels. Results are rendered after the checks so test output cannot trigger the mutation observer and mask a missing cleanup.
 
 The upgrade test builds the 0.2.0 release from Git history, so it needs a full clone.
 

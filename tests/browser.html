@@ -12,12 +12,20 @@
 <ytd-guide-entry-renderer id="sidebar-subscriptions"><a title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
 <a id="ordinary-shorts-title" title="Shorts" href="/watch?v=ordinary">A regular video named Shorts</a>
 <ytd-search>
-  <ytd-video-renderer id="ordinary"><a href="/watch?v=example">Ordinary search result</a></ytd-video-renderer>
-  <ytd-video-renderer id="short"><a href="/shorts/example">Short</a></ytd-video-renderer>
+  <ytd-video-renderer id="ordinary"><a id="video-title" href="/watch?v=example">Ordinary search result</a></ytd-video-renderer>
+  <ytd-video-renderer id="short"><a id="thumbnail" href="/shorts/example">Short</a></ytd-video-renderer>
+  <ytd-video-renderer id="ordinary-with-shorts-link"><a id="video-title" href="/watch?v=example">Full video about Shorts</a><yt-formatted-string class="metadata-snippet-text">Watch a clip: <a href="/shorts/description">description link</a></yt-formatted-string></ytd-video-renderer>
+  <ytd-compact-video-renderer id="compact-with-shorts-link"><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-compact-video-renderer>
+  <ytd-grid-video-renderer id="grid-with-shorts-link"><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-grid-video-renderer>
+  <ytd-rich-item-renderer id="rich-with-shorts-link"><ytd-rich-grid-media><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-rich-grid-media></ytd-rich-item-renderer>
+  <ytd-video-renderer id="title-short"><a id="video-title" href="/shorts/example">Short title</a></ytd-video-renderer>
+  <ytd-grid-video-renderer id="grid-short"><a id="thumbnail" href="/shorts/example">Short thumbnail</a></ytd-grid-video-renderer>
+  <ytd-rich-item-renderer id="rich-short"><ytd-rich-grid-media><a id="thumbnail" href="/shorts/example">Short thumbnail</a></ytd-rich-grid-media></ytd-rich-item-renderer>
   <grid-shelf-view-model id="modern-shelf"><ytm-shorts-lockup-view-model-v2><ytm-shorts-lockup-view-model id="modern-short"><a href="/shorts/modern">Modern Short</a></ytm-shorts-lockup-view-model></ytm-shorts-lockup-view-model-v2></grid-shelf-view-model>
   <ytd-shelf-renderer id="shelf"><span id="title">For you</span></ytd-shelf-renderer>
 </ytd-search>
-<ytd-browse page-subtype="channels"><ytd-rich-shelf-renderer id="channel-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
+<ytd-browse id="channel-browse" page-subtype="channels"><ytd-rich-shelf-renderer id="channel-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
+<ytd-browse id="reused-browse" page-subtype="subscriptions"><ytd-rich-shelf-renderer id="subscription-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
 <ytd-watch-flexy><div id="columns">
 <div id="primary"><div id="comments">Comments</div><button class="ytp-play-button">Play</button>
 <div id="movie_player" style="position:relative;width:320px;height:180px"><div class="html5-video-container"><video class="html5-main-video" style="position:absolute;width:200px;height:100px"></video></div></div>
@@ -38,20 +46,22 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   const results = [];
   const check = (name, condition) => {
     results.push({name, pass: !!condition});
-    const li = document.createElement("li"); li.className = condition ? "pass" : "fail";
-    li.textContent = (condition ? "PASS: " : "FAIL: ") + name;
-    document.querySelector("#results").appendChild(li);
   };
   const visible = selector => document.querySelector(selector).checkVisibility();
   const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   await frame();
   check("Normal search result remains visible", visible("#ordinary"));
+  check("A Shorts link in a normal video's description preserves the result", visible("#ordinary-with-shorts-link"));
+  check("A Shorts link outside a compact video's destination preserves the card", visible("#compact-with-shorts-link"));
+  check("Grid and rich videos with Shorts description links remain visible", visible("#grid-with-shorts-link") && visible("#rich-with-shorts-link"));
   check("Expanded Shorts shortcut without href is hidden", !visible("#sidebar-short"));
   check("Collapsed Shorts shortcut without href is hidden", !visible("#mini-sidebar-short"));
   check("Localized Shorts shortcut is hidden by its icon", !visible("#localized-sidebar-short"));
   check("Subscriptions shortcut remains visible", visible("#sidebar-subscriptions"));
   check("Shorts title outside navigation remains visible", visible("#ordinary-shorts-title"));
   check("Shorts search result is hidden", !visible("#short"));
+  check("A Shorts title destination is hidden without a thumbnail", !visible("#title-short"));
+  check("Grid and rich cards linking to Shorts remain hidden", !visible("#grid-short") && !visible("#rich-short"));
   check("Current desktop Shorts cards and their shelf are hidden", !visible("#modern-short") && !visible("#modern-shelf"));
   check("Recommendations are hidden", !visible("#related"));
   check("Empty secondary column collapses", !visible("#secondary"));
@@ -64,9 +74,23 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   check("Logo opens subscriptions", document.querySelector("ytd-topbar-logo-renderer a").getAttribute("href") === "/feed/subscriptions");
   check("Algorithmic search shelf is hidden", !visible("#shelf"));
   check("Channel content is preserved", visible("#channel-shelf"));
+  check("Algorithmic subscription shelf is hidden", !visible("#subscription-shelf"));
   document.querySelector("#shelf #title").textContent = "Latest uploads";
   await frame();
   check("Reused shelf with a normal title is restored", visible("#shelf"));
+  document.querySelector("#shelf #title").textContent = "For you";
+  await frame();
+  check("Reused search shelf is hidden again for a recommendation title", !visible("#shelf"));
+  document.querySelector("#channel-browse").appendChild(document.querySelector("#shelf"));
+  await frame();
+  check("A search shelf moved to a channel is restored", visible("#shelf"));
+  const browse = document.querySelector("#reused-browse");
+  browse.setAttribute("page-subtype", "channels");
+  await frame();
+  check("A browse renderer reused for a channel restores its shelves", visible("#subscription-shelf"));
+  browse.setAttribute("page-subtype", "subscriptions");
+  await frame();
+  check("A browse renderer reused for subscriptions hides recommendations again", !visible("#subscription-shelf"));
   const queue = document.querySelector("ytd-playlist-panel-renderer");
   queue.hidden = false;
   check("Playlist queue retains secondary column", visible("#secondary") && visible("ytd-playlist-panel-renderer"));
@@ -80,13 +104,35 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   check("Open transcript panel retains secondary column", visible("#secondary"));
   panel.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
   const late = document.createElement("ytd-video-renderer");
-  late.innerHTML = '<a href="/shorts/late">Late Short</a>';
+  late.innerHTML = '<a id="thumbnail" href="/shorts/late">Late Short</a>';
   document.querySelector("ytd-search").appendChild(late);
   check("New Shorts results are hidden automatically", !late.checkVisibility());
+  await new Promise(resolve => setTimeout(resolve, 600));
+  const lateToggle = document.createElement("button");
+  lateToggle.className = "ytp-autonav-toggle-button";
+  lateToggle.setAttribute("aria-checked", "true");
+  document.querySelector("#movie_player").appendChild(lateToggle);
+  await frame();
+  // Registering a handler does not produce a mutation to trigger another cleanup.
+  let lateClicks = 0;
+  lateToggle.addEventListener("click", () => {
+    lateClicks++;
+    lateToggle.setAttribute("aria-checked", "false");
+  });
+  await new Promise(resolve => setTimeout(resolve, 650));
+  await frame();
+  check("Autoplay recovers when its click handler is attached late", lateToggle.getAttribute("aria-checked") === "false" && lateClicks === 1);
+  lateToggle.remove();
   await new Promise(resolve => setTimeout(resolve, 600));
   toggle.setAttribute("aria-checked", "true");
   await frame();
   check("Autoplay is disabled again if YouTube re-enables it", toggle.getAttribute("aria-checked") === "false");
+  // Render results only after testing: test output must not trigger cleanups.
+  for (const result of results) {
+    const li = document.createElement("li"); li.className = result.pass ? "pass" : "fail";
+    li.textContent = (result.pass ? "PASS: " : "FAIL: ") + result.name;
+    document.querySelector("#results").appendChild(li);
+  }
   window.testResults = results;
   document.title = results.every(result => result.pass) ? "PASS - Fix YouTube browser checks" : "FAIL - Fix YouTube browser checks";
 })();
