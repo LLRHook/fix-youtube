@@ -16,13 +16,19 @@ function load(pathname, options = {}) {
     closest: () => disabled ? {} : null,
     click() { clicks++; if (acceptsClicks) checked = false; },
   } : null;
-  const player = { querySelector: () => checked ? toggle : null };
+  const player = {
+    querySelector: () => toggle,
+    closest: () => hiddenPlayer ? {} : null,
+  };
   const document = {
     documentElement: options.noRoot ? null : {},
     addEventListener(name, fn) { events[name] = fn; },
-    querySelectorAll(selector) { return selector.startsWith("ytd-topbar") ? links : shelves; },
+    querySelectorAll(selector) {
+      if (selector.startsWith("ytd-watch-flexy")) return options.players || [player];
+      return selector.startsWith("ytd-topbar") ? links : shelves;
+    },
     querySelector(selector) {
-      if (selector.startsWith("ytd-watch-flexy")) return hiddenPlayer ? null : player;
+      if (selector.startsWith("ytd-watch-flexy")) return options.players?.[0] || (hiddenPlayer ? null : player);
       return checked ? toggle : null;
     },
   };
@@ -153,6 +159,33 @@ test("retained hidden watch players are left alone until they become active", ()
   assert.equal(page.clicks(), 1);
   assert.equal(page.checked(), false);
 });
+
+for (const shape of ["aria-hidden", "hidden ancestor", "missing control", "disabled control", "already off"]) {
+  test(`an earlier player with ${shape} cannot starve active autoplay cleanup`, () => {
+    let retainedClicks = 0, activeClicks = 0, activeChecked = true;
+    const hidden = shape === "aria-hidden" || shape === "hidden ancestor";
+    const retainedToggle = {
+      getAttribute: () => String(shape !== "already off"),
+      closest: () => hidden || shape === "disabled control" ? {} : null,
+      click() { retainedClicks++; },
+    };
+    const activeToggle = {
+      getAttribute: () => String(activeChecked),
+      closest: () => null,
+      click() { activeClicks++; activeChecked = false; },
+    };
+    const retained = {
+      querySelector: () => shape === "missing control" ? null : retainedToggle,
+      closest: () => hidden ? {} : null,
+    };
+    const active = { querySelector: () => activeToggle, closest: () => null };
+    const page = load("/watch", {players: [retained, active]});
+    assert.equal(activeClicks, 1);
+    assert.equal(activeChecked, false);
+    assert.equal(retainedClicks, 0);
+    assert.equal(page.timers.length, 0);
+  });
+}
 
 test("leaving the watch player cancels an ignored autoplay click", () => {
   const page = load("/watch", {toggle: true});

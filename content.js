@@ -56,13 +56,16 @@
   function disableAutoplay() {
     // YouTube retains hidden watch renderers during SPA navigation. Ignore those
     // and inline previews, which can expose the same autoplay classes.
-    const player = document.querySelector('ytd-watch-flexy:not([hidden]) #movie_player');
     // Prefer the inner control even when the container also has aria-checked.
     // Clicking the container does not dispatch to the button's click handler.
-    const toggle = player?.querySelector('.ytp-autonav-toggle-button[aria-checked]') ||
-      player?.querySelector('.ytp-autonav-toggle-button-container[aria-checked]');
-    if (!toggle || toggle.getAttribute("aria-checked") !== "true" ||
-        toggle.closest('[hidden], [aria-hidden="true"], [disabled], [aria-disabled="true"]')) {
+    // An ineligible retained renderer must not hide a later usable player.
+    const toggle = Array.from(document.querySelectorAll('ytd-watch-flexy #movie_player'))
+      .map(player => player.closest('[hidden], [aria-hidden="true"]') ? null :
+        player.querySelector('.ytp-autonav-toggle-button[aria-checked]') ||
+        player.querySelector('.ytp-autonav-toggle-button-container[aria-checked]'))
+      .find(control => control?.getAttribute("aria-checked") === "true" &&
+        !control.closest('[hidden], [aria-hidden="true"], [disabled], [aria-disabled="true"]'));
+    if (!toggle) {
       if (autoplayRetry !== null) clearTimeout(autoplayRetry);
       autoplayRetry = null;
       lastAutoplayToggle = null;

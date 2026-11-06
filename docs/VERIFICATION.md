@@ -1,3 +1,16 @@
+# Verification follow-up: player selection, November 6, 2026
+
+Independent review found that an earlier retained watch renderer could stop autoplay cleanup from reaching a later active player. Cleanup now considers each candidate before choosing an enabled control. A renderer with `aria-hidden`, a hidden ancestor, no control, a disabled control, or an already-off toggle cannot block the active player.
+
+- Five new behavioral regressions failed before the correction. `npm test` now passes 30 tests with zero failures or skips.
+- The sanitized Chrome DOM/CSS fixture passes 52 assertions, including all five earlier-renderer cases. It loads the current content script in a disposable profile with external requests blocked.
+- The normal Rust packaging command rebuilds both browser ZIPs and the submission bundle from this corrected source. Archive payloads and all 14 submission checksums are verified again.
+- The 18 installed-extension tests, Rust/Python parity tests and CPU samples below describe the preceding implementation checkpoint. The packaging implementation is unchanged in this follow-up. No new CPU or packaging performance benefit is claimed.
+
+Firefox, current live YouTube smoke checks and fresh screenshots remain NOT RUN. The earlier verification record follows unchanged.
+
+---
+
 # Verification: Fix YouTube 0.3.1
 
 Checked November 6, 2026 on macOS arm64 with Node 22.23.4 and Rust 1.93.1. Browser automation used Chrome 156.0.8078.80 with disposable profiles and synthetic local fixtures. It did not use a signed-in account or a live YouTube page.

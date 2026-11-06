@@ -124,6 +124,27 @@ toggle.addEventListener("click", () => {
   check("New Shorts results are hidden automatically", !late.checkVisibility());
   await new Promise(resolve => setTimeout(resolve, 600));
   check("Hidden retained players never receive autoplay retries", retainedClicks === 0 && retainedToggle.getAttribute("aria-checked") === "true");
+  for (const shape of ["aria-hidden", "hidden ancestor", "missing control", "disabled control", "already off"]) {
+    const earlier = document.createElement("ytd-watch-flexy");
+    earlier.innerHTML = '<div id="movie_player"><button class="ytp-autonav-toggle-button" aria-checked="true">Synthetic retained autoplay</button></div>';
+    const earlierToggle = earlier.querySelector("button");
+    let earlierClicks = 0;
+    earlierToggle.onclick = () => { earlierClicks++; earlierToggle.setAttribute("aria-checked", "false"); };
+    let mount = earlier;
+    if (shape === "aria-hidden") earlier.setAttribute("aria-hidden", "true");
+    if (shape === "hidden ancestor") {
+      mount = document.createElement("div"); mount.hidden = true; mount.appendChild(earlier);
+    }
+    if (shape === "missing control") earlierToggle.remove();
+    if (shape === "disabled control") earlierToggle.disabled = true;
+    if (shape === "already off") earlierToggle.setAttribute("aria-checked", "false");
+    document.querySelector("#active-watch").before(mount);
+    toggle.setAttribute("aria-checked", "true");
+    await new Promise(resolve => setTimeout(resolve, 650));
+    await frame();
+    check(`Active autoplay skips an earlier player with ${shape}`, toggle.getAttribute("aria-checked") === "false" && earlierClicks === 0);
+    mount.remove();
+  }
   const lateToggle = document.createElement("button");
   lateToggle.className = "ytp-autonav-toggle-button";
   lateToggle.setAttribute("aria-checked", "true");
