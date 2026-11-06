@@ -1,4 +1,4 @@
-# Store listing for version 0.3.0
+# Store listing for version 0.3.1
 
 ## Name
 
@@ -43,7 +43,7 @@ English listing. Chromium 105+; Firefox 142+.
 
 ## Release notes
 
-Version 0.3.0 replaces the settings dashboard with one fixed experience. It removes custom themes, timers, settings import/export, watch tracking, and feature-toggle shortcuts. Updates autoplay handling and the watch-page layout for current YouTube. Shared Shorts links now open the correct video, and the Shorts sidebar entry is hidden in every YouTube language.
+Version 0.3.1 keeps autoplay off when YouTube reuses or replaces its watch player. It waits for disabled controls to become ready and leaves retained hidden players and inline previews alone. The fixed setup and single popup action are unchanged.
 
 ## Assets
 
@@ -53,7 +53,7 @@ Version 0.3.0 replaces the settings dashboard with one fixed experience. It remo
 - `promo-440x280.png`: required Chrome promotional graphic.
 - `icon128.png`: store icon, also included in each browser ZIP.
 
-Screenshot provenance and validation limits are documented in `../VERIFICATION.md`.
+These are the October 2, 2026 captures. They have not been recaptured for 0.3.1. Screenshot provenance and validation limits are documented in `../VERIFICATION.md`.
 
 ## Links for the publisher
 

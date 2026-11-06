@@ -1,6 +1,6 @@
 {
   "name": "fix-youtube",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Hide YouTube Shorts and recommendations, disable autoplay, and open Subscriptions by default. No settings or setup.",
   "license": "MIT",
@@ -10,8 +10,9 @@
   },
   "scripts": {
     "test": "node --test",
-    "build": "python build.py",
-    "test:e2e": "node --test --test-concurrency=1 --test-timeout=120000 --test-force-exit \"tests/e2e/*.e2e.js\""
+    "build": "cargo run --locked --release --manifest-path tools/packager/Cargo.toml --",
+    "test:e2e": "node --test --test-concurrency=1 --test-timeout=120000 --test-force-exit \"tests/e2e/*.e2e.js\"",
+    "test:packager": "cargo test --locked --manifest-path tools/packager/Cargo.toml && python3 tests/packager_parity.py"
   },
   "engines": {
     "node": ">=22.12.0"

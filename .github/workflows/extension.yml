@@ -25,12 +25,26 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+      - name: Set up Rust packaging toolchain
+        run: rustup toolchain install 1.93.1 --profile minimal --component clippy --component rustfmt
       - name: Install test tools and browsers
         run: npm ci
       - name: Test behavior and package contracts
         run: npm test
+      - name: Check Rust formatting and lint
+        run: |
+          cargo fmt --manifest-path tools/packager/Cargo.toml -- --check
+          cargo clippy --locked --manifest-path tools/packager/Cargo.toml --all-targets -- -D warnings
+        env:
+          RUSTUP_TOOLCHAIN: "1.93.1"
+      - name: Test Rust packager and Python format parity
+        run: npm run test:packager
+        env:
+          RUSTUP_TOOLCHAIN: "1.93.1"
       - name: Build and validate browser ZIPs
-        run: python3 build.py
+        run: npm run build
+        env:
+          RUSTUP_TOOLCHAIN: "1.93.1"
       - name: Validate Firefox package
         run: npx --yes web-ext@10.7.0 lint --source-dir dist-firefox --warnings-as-errors --output text
       - name: Allow the Chrome sandbox

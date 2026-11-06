@@ -1,0 +1,24 @@
+[package]
+name = "fix-youtube-packager"
+version = "0.3.1"
+edition = "2024"
+rust-version = "1.88"
+publish = false
+license = "MIT"
+description = "Allowlisted desktop extension packages and submission checksums"
+
+[dependencies]
+serde_json = "=1.0.154"
+sha2 = "=0.11.1"
+zip = { version = "=9.4.1", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false
+
+[profile.release]
+strip = "debuginfo"

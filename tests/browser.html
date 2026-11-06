@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <meta charset="utf-8">
 <title>Fix YouTube browser regression checks</title>
 <link rel="stylesheet" href="../styles.css">
@@ -12,16 +12,28 @@
 <ytd-guide-entry-renderer id="sidebar-subscriptions"><a title="Subscriptions" href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
 <a id="ordinary-shorts-title" title="Shorts" href="/watch?v=ordinary">A regular video named Shorts</a>
 <ytd-search>
-  <ytd-video-renderer id="ordinary"><a href="/watch?v=example">Ordinary search result</a></ytd-video-renderer>
-  <ytd-video-renderer id="short"><a href="/shorts/example">Short</a></ytd-video-renderer>
+  <ytd-video-renderer id="ordinary"><a id="video-title" href="/watch?v=example">Ordinary search result</a></ytd-video-renderer>
+  <ytd-video-renderer id="short"><a id="thumbnail" href="/shorts/example">Short</a></ytd-video-renderer>
+  <ytd-video-renderer id="ordinary-with-shorts-link"><a id="video-title" href="/watch?v=example">Full video about Shorts</a><yt-formatted-string class="metadata-snippet-text">Watch a clip: <a href="/shorts/description">description link</a></yt-formatted-string></ytd-video-renderer>
+  <ytd-compact-video-renderer id="compact-with-shorts-link"><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-compact-video-renderer>
+  <ytd-grid-video-renderer id="grid-with-shorts-link"><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-grid-video-renderer>
+  <ytd-rich-item-renderer id="rich-with-shorts-link"><ytd-rich-grid-media><a id="thumbnail" href="/watch?v=example">Full video</a><a href="/shorts/description">description link</a></ytd-rich-grid-media></ytd-rich-item-renderer>
+  <ytd-video-renderer id="title-short"><a id="video-title" href="/shorts/example">Short title</a></ytd-video-renderer>
+  <ytd-grid-video-renderer id="grid-short"><a id="thumbnail" href="/shorts/example">Short thumbnail</a></ytd-grid-video-renderer>
+  <ytd-rich-item-renderer id="rich-short"><ytd-rich-grid-media><a id="thumbnail" href="/shorts/example">Short thumbnail</a></ytd-rich-grid-media></ytd-rich-item-renderer>
   <grid-shelf-view-model id="modern-shelf"><ytm-shorts-lockup-view-model-v2><ytm-shorts-lockup-view-model id="modern-short"><a href="/shorts/modern">Modern Short</a></ytm-shorts-lockup-view-model></ytm-shorts-lockup-view-model-v2></grid-shelf-view-model>
   <ytd-shelf-renderer id="shelf"><span id="title">For you</span></ytd-shelf-renderer>
 </ytd-search>
-<ytd-browse page-subtype="channels"><ytd-rich-shelf-renderer id="channel-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
-<ytd-watch-flexy><div id="columns">
+<ytd-browse id="channel-browse" page-subtype="channels"><ytd-rich-shelf-renderer id="channel-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
+<ytd-browse id="reused-browse" page-subtype="subscriptions"><ytd-rich-shelf-renderer id="subscription-shelf"><span id="title">For you</span></ytd-rich-shelf-renderer></ytd-browse>
+<!-- Sanitized desktop lifecycle: an inline preview and a retained hidden watch
+     renderer can coexist with the current watch player. No live page data. -->
+<div id="inline-preview"><button class="ytp-autonav-toggle-button" aria-checked="true">Preview autoplay</button></div>
+<ytd-watch-flexy id="retained-watch" hidden><div id="movie_player"><button class="ytp-autonav-toggle-button" aria-checked="true">Retained autoplay</button></div></ytd-watch-flexy>
+<ytd-watch-flexy id="active-watch"><div id="columns">
 <div id="primary"><div id="comments">Comments</div><button class="ytp-play-button">Play</button>
-<div id="movie_player" style="position:relative;width:320px;height:180px"><div class="html5-video-container"><video class="html5-main-video" style="position:absolute;width:200px;height:100px"></video></div></div>
-<div class="ytp-autonav-toggle-button-container"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div></div>
+<div id="movie_player" style="position:relative;width:320px;height:180px"><div class="html5-video-container"><video class="html5-main-video" style="position:absolute;width:200px;height:100px"></video></div>
+<div class="ytp-autonav-toggle-button-container" aria-checked="true"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div></div></div>
 <div id="secondary"><div id="related">Recommended videos</div>
 <ytd-playlist-panel-renderer hidden>Queue</ytd-playlist-panel-renderer>
 <ytd-live-chat-frame hide-chat-frame>Chat</ytd-live-chat-frame>
@@ -29,8 +41,17 @@
 </div></div></ytd-watch-flexy>
 </div>
 <script>
-const toggle = document.querySelector(".ytp-autonav-toggle-button");
-toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggle.getAttribute("aria-checked") === "true" ? "false" : "true"));
+const toggle = document.querySelector("#active-watch .ytp-autonav-toggle-button");
+const previewToggle = document.querySelector("#inline-preview button");
+const retainedToggle = document.querySelector("#retained-watch button");
+let previewClicks = 0, retainedClicks = 0;
+previewToggle.onclick = () => { previewClicks++; previewToggle.setAttribute("aria-checked", "false"); };
+retainedToggle.onclick = () => { retainedClicks++; retainedToggle.setAttribute("aria-checked", "false"); };
+toggle.addEventListener("click", () => {
+  const checked = toggle.getAttribute("aria-checked") === "true" ? "false" : "true";
+  toggle.setAttribute("aria-checked", checked);
+  toggle.parentElement.setAttribute("aria-checked", checked);
+});
 </script>
 <script src="../content.js"></script>
 <script>
@@ -38,20 +59,22 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   const results = [];
   const check = (name, condition) => {
     results.push({name, pass: !!condition});
-    const li = document.createElement("li"); li.className = condition ? "pass" : "fail";
-    li.textContent = (condition ? "PASS: " : "FAIL: ") + name;
-    document.querySelector("#results").appendChild(li);
   };
   const visible = selector => document.querySelector(selector).checkVisibility();
   const frame = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   await frame();
   check("Normal search result remains visible", visible("#ordinary"));
+  check("A Shorts link in a normal video's description preserves the result", visible("#ordinary-with-shorts-link"));
+  check("A Shorts link outside a compact video's destination preserves the card", visible("#compact-with-shorts-link"));
+  check("Grid and rich videos with Shorts description links remain visible", visible("#grid-with-shorts-link") && visible("#rich-with-shorts-link"));
   check("Expanded Shorts shortcut without href is hidden", !visible("#sidebar-short"));
   check("Collapsed Shorts shortcut without href is hidden", !visible("#mini-sidebar-short"));
   check("Localized Shorts shortcut is hidden by its icon", !visible("#localized-sidebar-short"));
   check("Subscriptions shortcut remains visible", visible("#sidebar-subscriptions"));
   check("Shorts title outside navigation remains visible", visible("#ordinary-shorts-title"));
   check("Shorts search result is hidden", !visible("#short"));
+  check("A Shorts title destination is hidden without a thumbnail", !visible("#title-short"));
+  check("Grid and rich cards linking to Shorts remain hidden", !visible("#grid-short") && !visible("#rich-short"));
   check("Current desktop Shorts cards and their shelf are hidden", !visible("#modern-short") && !visible("#modern-shelf"));
   check("Recommendations are hidden", !visible("#related"));
   check("Empty secondary column collapses", !visible("#secondary"));
@@ -59,14 +82,30 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   check("Play control remains visible", visible(".ytp-play-button"));
   const videoSize = document.querySelector("video").getBoundingClientRect();
   check("Video fills the player after layout changes", videoSize.width === 320 && videoSize.height === 180);
-  check("Autoplay is switched off", toggle.getAttribute("aria-checked") === "false");
+  check("Active player autoplay is switched off through the inner button", toggle.getAttribute("aria-checked") === "false");
+  check("Inline preview autoplay is untouched", previewClicks === 0 && previewToggle.getAttribute("aria-checked") === "true");
+  check("Retained hidden watch player autoplay is untouched", retainedClicks === 0 && retainedToggle.getAttribute("aria-checked") === "true");
   check("Autoplay control is hidden", !visible(".ytp-autonav-toggle-button-container"));
   check("Logo opens subscriptions", document.querySelector("ytd-topbar-logo-renderer a").getAttribute("href") === "/feed/subscriptions");
   check("Algorithmic search shelf is hidden", !visible("#shelf"));
   check("Channel content is preserved", visible("#channel-shelf"));
+  check("Algorithmic subscription shelf is hidden", !visible("#subscription-shelf"));
   document.querySelector("#shelf #title").textContent = "Latest uploads";
   await frame();
   check("Reused shelf with a normal title is restored", visible("#shelf"));
+  document.querySelector("#shelf #title").textContent = "For you";
+  await frame();
+  check("Reused search shelf is hidden again for a recommendation title", !visible("#shelf"));
+  document.querySelector("#channel-browse").appendChild(document.querySelector("#shelf"));
+  await frame();
+  check("A search shelf moved to a channel is restored", visible("#shelf"));
+  const browse = document.querySelector("#reused-browse");
+  browse.setAttribute("page-subtype", "channels");
+  await frame();
+  check("A browse renderer reused for a channel restores its shelves", visible("#subscription-shelf"));
+  browse.setAttribute("page-subtype", "subscriptions");
+  await frame();
+  check("A browse renderer reused for subscriptions hides recommendations again", !visible("#subscription-shelf"));
   const queue = document.querySelector("ytd-playlist-panel-renderer");
   queue.hidden = false;
   check("Playlist queue retains secondary column", visible("#secondary") && visible("ytd-playlist-panel-renderer"));
@@ -80,13 +119,109 @@ toggle.addEventListener("click", () => toggle.setAttribute("aria-checked", toggl
   check("Open transcript panel retains secondary column", visible("#secondary"));
   panel.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
   const late = document.createElement("ytd-video-renderer");
-  late.innerHTML = '<a href="/shorts/late">Late Short</a>';
+  late.innerHTML = '<a id="thumbnail" href="/shorts/late">Late Short</a>';
   document.querySelector("ytd-search").appendChild(late);
   check("New Shorts results are hidden automatically", !late.checkVisibility());
+  await new Promise(resolve => setTimeout(resolve, 600));
+  check("Hidden retained players never receive autoplay retries", retainedClicks === 0 && retainedToggle.getAttribute("aria-checked") === "true");
+  for (const shape of ["aria-hidden", "hidden ancestor", "missing control", "disabled control", "already off"]) {
+    const earlier = document.createElement("ytd-watch-flexy");
+    earlier.innerHTML = '<div id="movie_player"><button class="ytp-autonav-toggle-button" aria-checked="true">Synthetic retained autoplay</button></div>';
+    const earlierToggle = earlier.querySelector("button");
+    let earlierClicks = 0;
+    earlierToggle.onclick = () => { earlierClicks++; earlierToggle.setAttribute("aria-checked", "false"); };
+    let mount = earlier;
+    if (shape === "aria-hidden") earlier.setAttribute("aria-hidden", "true");
+    if (shape === "hidden ancestor") {
+      mount = document.createElement("div"); mount.hidden = true; mount.appendChild(earlier);
+    }
+    if (shape === "missing control") earlierToggle.remove();
+    if (shape === "disabled control") earlierToggle.disabled = true;
+    if (shape === "already off") earlierToggle.setAttribute("aria-checked", "false");
+    document.querySelector("#active-watch").before(mount);
+    toggle.setAttribute("aria-checked", "true");
+    await new Promise(resolve => setTimeout(resolve, 650));
+    await frame();
+    check(`Active autoplay skips an earlier player with ${shape}`, toggle.getAttribute("aria-checked") === "false" && earlierClicks === 0);
+    mount.remove();
+  }
+  const lateToggle = document.createElement("button");
+  lateToggle.className = "ytp-autonav-toggle-button";
+  lateToggle.setAttribute("aria-checked", "true");
+  toggle.replaceWith(lateToggle);
+  await frame();
+  // Registering a handler does not produce a mutation to trigger another cleanup.
+  let lateClicks = 0;
+  lateToggle.addEventListener("click", () => {
+    lateClicks++;
+    lateToggle.setAttribute("aria-checked", "false");
+  });
+  await new Promise(resolve => setTimeout(resolve, 650));
+  await frame();
+  check("Autoplay recovers when its click handler is attached late", lateToggle.getAttribute("aria-checked") === "false" && lateClicks === 1);
+  lateToggle.replaceWith(toggle);
+  const readyToggle = toggle.cloneNode(true);
+  readyToggle.setAttribute("aria-checked", "true");
+  readyToggle.disabled = true;
+  let readyClicks = 0;
+  readyToggle.onclick = () => { readyClicks++; readyToggle.setAttribute("aria-checked", "false"); };
+  toggle.replaceWith(readyToggle);
+  await frame();
+  check("Disabled autoplay waits without synthetic clicks", readyClicks === 0 && readyToggle.getAttribute("aria-checked") === "true");
+  readyToggle.disabled = false;
+  await frame();
+  check("Autoplay is disabled when the player becomes ready", readyClicks === 1 && readyToggle.getAttribute("aria-checked") === "false");
+  const replacement = readyToggle.cloneNode(true);
+  replacement.setAttribute("aria-checked", "true");
+  let replacementClicks = 0;
+  replacement.onclick = () => { replacementClicks++; replacement.setAttribute("aria-checked", "false"); };
+  readyToggle.replaceWith(replacement);
+  await frame();
+  check("A replacement player control has its own click cooldown", replacementClicks === 1 && replacement.getAttribute("aria-checked") === "false");
+  replacement.replaceWith(toggle);
+  const activeWatch = document.querySelector("#active-watch");
+  activeWatch.hidden = true;
+  toggle.setAttribute("aria-checked", "true");
+  await frame();
+  check("Navigation away leaves retained autoplay state alone", toggle.getAttribute("aria-checked") === "true");
+  activeWatch.hidden = false;
+  await frame();
+  check("Returning to a retained watch renderer disables autoplay", toggle.getAttribute("aria-checked") === "false");
   await new Promise(resolve => setTimeout(resolve, 600));
   toggle.setAttribute("aria-checked", "true");
   await frame();
   check("Autoplay is disabled again if YouTube re-enables it", toggle.getAttribute("aria-checked") === "false");
+  const originalContainer = toggle.parentElement;
+  const fallback = document.createElement("div");
+  fallback.className = "ytp-autonav-toggle-button-container";
+  fallback.setAttribute("aria-checked", "true");
+  let fallbackClicks = 0;
+  fallback.onclick = () => { fallbackClicks++; fallback.setAttribute("aria-checked", "false"); };
+  originalContainer.replaceWith(fallback);
+  await frame();
+  check("Legacy container-only autoplay controls still switch off", fallbackClicks === 1 && fallback.getAttribute("aria-checked") === "false");
+  const inner = document.createElement("button");
+  inner.className = "ytp-autonav-toggle-button";
+  inner.setAttribute("aria-checked", "false");
+  fallback.appendChild(inner);
+  fallback.setAttribute("aria-checked", "true");
+  await frame();
+  check("A stale container cannot re-enable an already-off inner button", fallbackClicks === 1 && inner.getAttribute("aria-checked") === "false");
+  fallback.setAttribute("aria-disabled", "true");
+  inner.setAttribute("aria-checked", "true");
+  inner.onclick = () => inner.setAttribute("aria-checked", "false");
+  await frame();
+  check("An aria-disabled container protects its inner control", fallbackClicks === 1 && inner.getAttribute("aria-checked") === "true");
+  fallback.removeAttribute("aria-disabled");
+  await frame();
+  check("Removing aria-disabled resumes autoplay cleanup", fallbackClicks === 2 && inner.getAttribute("aria-checked") === "false");
+  fallback.replaceWith(originalContainer);
+  // Render results only after testing: test output must not trigger cleanups.
+  for (const result of results) {
+    const li = document.createElement("li"); li.className = result.pass ? "pass" : "fail";
+    li.textContent = (result.pass ? "PASS: " : "FAIL: ") + result.name;
+    document.querySelector("#results").appendChild(li);
+  }
   window.testResults = results;
   document.title = results.every(result => result.pass) ? "PASS - Fix YouTube browser checks" : "FAIL - Fix YouTube browser checks";
 })();

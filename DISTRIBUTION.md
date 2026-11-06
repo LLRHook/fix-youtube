@@ -1,16 +1,16 @@
 # Distribution
 
-Version 0.3.0 is a fixed desktop YouTube extension. Store publication is a separate action from generating these files.
+Version 0.3.1 is a fixed desktop YouTube extension. Store publication is a separate action from generating these files.
 
 ## Deliverables
 
-Run `python build.py` from the project root.
+Run `npm run build` from the project root with Rust 1.88 or newer. The Rust packager builds both browsers by default. `python build.py` and `build.sh` are compatibility launchers for the same implementation.
 
 | File | Purpose |
 | --- | --- |
 | `fix-youtube-chrome.zip` | Upload to Chrome Web Store |
 | `fix-youtube-firefox.zip` | Upload to Firefox Add-ons |
-| `fix-youtube-submission-0.3.0.zip` | Handoff bundle with both packages, listing copy, policy, screenshots, and checksums |
+| `fix-youtube-submission-0.3.1.zip` | Handoff bundle with both packages, listing copy, policy, screenshots, and checksums |
 | `dist-chrome/` | Load unpacked in Chrome or Helium |
 | `dist-firefox/` | Load temporarily in Firefox |
 
@@ -21,7 +21,8 @@ Do not upload the handoff bundle as an extension. Upload the browser-specific ZI
 ```sh
 npm ci
 npm test
-python build.py
+npm run test:packager
+npm run build
 npx --yes web-ext@10.7.0 lint --source-dir dist-firefox --warnings-as-errors --output text
 npm run test:e2e
 ```
@@ -66,18 +67,18 @@ If a YouTube layout change brings back a hidden element or hides too much:
 
 ## Supported browsers
 
-The tested versions are Chromium 154 (Chrome, Helium) and Firefox 156. The declared minimums are Chromium 105 and Firefox 142; versions between those minimums and the tested ones are untested. Search and Subscriptions shelf removal matches English shelf titles. Every other behavior is language-independent.
+Current automated checks use Chrome 156.0.8078.80. The October 2 live checks used Chromium 154 (Chrome, Helium) and Firefox 156; current Firefox and live YouTube checks remain pending in `docs/VERIFICATION.md`. The declared minimums are Chromium 105 and Firefox 142; versions between those minimums and the tested ones are untested. Search and Subscriptions shelf removal matches English shelf titles. Every other behavior is language-independent.
 
 ## Submission checklist
 
-- [x] Matching 0.3.0 versions and product descriptions.
+- [x] Matching 0.3.1 versions and product descriptions.
 - [x] Desktop YouTube host scope and one API permission.
 - [x] Firefox data-collection declaration set to `none`.
 - [x] Runtime files and manifests at each ZIP root.
 - [x] Store icon and 440 x 280 promotional graphic.
-- [x] 1280 x 800 product screenshots.
+- [x] 1280 x 800 product screenshots from October 2, 2026. These have not been recaptured for 0.3.1.
 - [x] Listing copy, permission justifications, privacy text, and release notes.
-- [x] Installed-extension tests and live smoke checks in Chromium and Firefox (see verification notes).
+- [ ] Complete the current browser matrix and live smoke checks for 0.3.1 (see verification notes).
 - [x] Public project, issues and [privacy statement](https://github.com/LLRHook/fix-youtube/blob/main/PRIVACY.md) links respond.
 - [ ] Confirm the store accepts the GitHub-hosted privacy statement, or host a dedicated policy page if required.
 - [ ] Confirm publisher account, public support links, category, and desktop platforms.

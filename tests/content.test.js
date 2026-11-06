@@ -6,15 +6,31 @@ const source = fs.readFileSync(require("node:path").join(__dirname, "../content.
 
 function load(pathname, options = {}) {
   const events = {}, windowEvents = {}, frames = [], redirects = [], timers = [];
-  let observe, observerCallback, clicks = 0, now = 1000;
+  let observe, observerCallback, clicks = 0, now = 1000, timerId = 0;
+  let checked = !!options.toggle, acceptsClicks = !!options.toggleResponds;
+  let hiddenPlayer = !!options.hiddenPlayer, disabled = !!options.disabled;
   const links = options.links || [];
   const shelves = options.shelves || [];
-  const toggle = options.toggle ? { click() { clicks++; } } : null;
+  const toggle = options.toggle ? {
+    getAttribute: name => name === "aria-checked" ? String(checked) : null,
+    closest: () => disabled ? {} : null,
+    click() { clicks++; if (acceptsClicks) checked = false; },
+  } : null;
+  const player = {
+    querySelector: () => toggle,
+    closest: () => hiddenPlayer ? {} : null,
+  };
   const document = {
     documentElement: options.noRoot ? null : {},
     addEventListener(name, fn) { events[name] = fn; },
-    querySelectorAll(selector) { return selector.startsWith("ytd-topbar") ? links : shelves; },
-    querySelector() { return toggle; },
+    querySelectorAll(selector) {
+      if (selector.startsWith("ytd-watch-flexy")) return options.players || [player];
+      return selector.startsWith("ytd-topbar") ? links : shelves;
+    },
+    querySelector(selector) {
+      if (selector.startsWith("ytd-watch-flexy")) return options.players?.[0] || (hiddenPlayer ? null : player);
+      return checked ? toggle : null;
+    },
   };
   const window = { addEventListener(name, fn) { windowEvents[name] = fn; } };
   window.top = options.iframe ? {} : window;
@@ -22,7 +38,11 @@ function load(pathname, options = {}) {
   vm.runInNewContext(source, {
     window, document, location, Date: { now: () => now },
     requestAnimationFrame(fn) { frames.push(fn); },
-    setTimeout(fn) { timers.push(fn); return timers.length; },
+    setTimeout(fn, delay) { fn.id = ++timerId; fn.delay = delay; timers.push(fn); return fn.id; },
+    clearTimeout(id) {
+      const index = timers.findIndex(fn => fn.id === id);
+      if (index !== -1) timers.splice(index, 1);
+    },
     MutationObserver: class {
       constructor(fn) { observerCallback = fn; }
       observe(root, config) { observe = config; }
@@ -30,7 +50,12 @@ function load(pathname, options = {}) {
   });
   return {events, windowEvents, frames, redirects, timers, location, document,
     mutate: () => observerCallback(), config: () => observe,
-    clicks: () => clicks, advance: () => { now += 600; }};
+    clicks: () => clicks, advance: () => { now += 600; },
+    attachToggleHandler: () => { acceptsClicks = true; },
+    setChecked: value => { checked = value; }, checked: () => checked,
+    hidePlayer: () => { hiddenPlayer = true; },
+    showPlayer: () => { hiddenPlayer = false; },
+    setDisabled: value => { disabled = value; }};
 }
 
 test("homepage redirects immediately without starting a DOM observer", () => {
@@ -71,7 +96,9 @@ test("DOM updates are coalesced and autoplay changes are observed", () => {
   const page = load("/watch");
   page.mutate(); page.mutate(); page.mutate();
   assert.equal(page.frames.length, 1);
-  assert.deepEqual(Array.from(page.config().attributeFilter), ["aria-checked", "href"]);
+  for (const attr of ["aria-checked", "href", "page-subtype", "hidden", "aria-hidden", "disabled", "aria-disabled"]) {
+    assert.ok(page.config().attributeFilter.includes(attr), attr);
+  }
   page.frames.shift()();
   page.mutate();
   assert.equal(page.frames.length, 1);
@@ -89,6 +116,114 @@ test("autoplay click is rate limited while YouTube updates its state", () => {
   assert.equal(page.clicks(), 2);
 });
 
+test("autoplay retries an ignored click without waiting for another DOM mutation", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), true);
+  assert.equal(page.timers.length, 1);
+  // YouTube attaches its handler after the extension's first click.
+  page.attachToggleHandler();
+  page.advance();
+  page.timers.shift()();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 2);
+  assert.equal(page.checked(), false);
+  assert.equal(page.timers.length, 0);
+});
+
+test("an autoplay retry never clicks a toggle that has already switched off", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.timers.length, 1);
+  page.setChecked(false);
+  page.advance();
+  page.timers.shift()();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.timers.length, 0);
+});
+
+test("a successful autoplay click does not schedule another attempt", () => {
+  const page = load("/watch", {toggle: true, toggleResponds: true});
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+  assert.equal(page.timers.length, 0);
+});
+
+test("retained hidden watch players are left alone until they become active", () => {
+  const page = load("/results", {toggle: true, hiddenPlayer: true, toggleResponds: true});
+  assert.equal(page.clicks(), 0);
+  assert.equal(page.timers.length, 0);
+  page.showPlayer();
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+});
+
+for (const shape of ["aria-hidden", "hidden ancestor", "missing control", "disabled control", "already off"]) {
+  test(`an earlier player with ${shape} cannot starve active autoplay cleanup`, () => {
+    let retainedClicks = 0, activeClicks = 0, activeChecked = true;
+    const hidden = shape === "aria-hidden" || shape === "hidden ancestor";
+    const retainedToggle = {
+      getAttribute: () => String(shape !== "already off"),
+      closest: () => hidden || shape === "disabled control" ? {} : null,
+      click() { retainedClicks++; },
+    };
+    const activeToggle = {
+      getAttribute: () => String(activeChecked),
+      closest: () => null,
+      click() { activeClicks++; activeChecked = false; },
+    };
+    const retained = {
+      querySelector: () => shape === "missing control" ? null : retainedToggle,
+      closest: () => hidden ? {} : null,
+    };
+    const active = { querySelector: () => activeToggle, closest: () => null };
+    const page = load("/watch", {players: [retained, active]});
+    assert.equal(activeClicks, 1);
+    assert.equal(activeChecked, false);
+    assert.equal(retainedClicks, 0);
+    assert.equal(page.timers.length, 0);
+  });
+}
+
+test("leaving the watch player cancels an ignored autoplay click", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.timers.length, 1);
+  page.hidePlayer();
+  page.location.pathname = "/results";
+  page.events["yt-navigate-finish"]();
+  assert.equal(page.timers.length, 0);
+  page.advance();
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+});
+
+test("disabled autoplay controls wait for player readiness", () => {
+  const page = load("/watch", {toggle: true, disabled: true, toggleResponds: true});
+  assert.equal(page.clicks(), 0);
+  assert.equal(page.timers.length, 0);
+  page.setDisabled(false);
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+});
+
+test("autoplay retries are cancelled when the control switches off or becomes disabled", () => {
+  for (const state of ["off", "disabled"]) {
+    const page = load("/watch", {toggle: true});
+    assert.equal(page.timers.length, 1);
+    if (state === "off") page.setChecked(false);
+    else page.setDisabled(true);
+    page.mutate();
+    page.frames.shift()();
+    assert.equal(page.timers.length, 0, state);
+    assert.equal(page.clicks(), 1, state);
+  }
+});
+
 test("home links are rewritten without repeatedly mutating the same href", () => {
   let href = "/", changes = 0;
   const page = load("/watch", {links: [{
@@ -103,6 +238,7 @@ test("home links are rewritten without repeatedly mutating the same href", () =>
 test("reused shelves are rechecked and ordinary channel titles are preserved", () => {
   let title = "For you", hidden;
   const shelf = {
+    matches: () => true,
     querySelector: () => ({ textContent: title }),
     classList: { toggle: (name, value) => { hidden = value; } },
   };

@@ -1,6 +1,6 @@
 # Fix YouTube privacy statement
 
-Version 0.3.0. Updated October 2, 2026.
+Version 0.3.1. Updated November 6, 2026.
 
 Fix YouTube runs locally in your browser on desktop youtube.com pages. It examines the current page's navigation links, shelf labels, and autoplay control to redirect Home and Shorts and hide distracting elements.
 
