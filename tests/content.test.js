@@ -6,19 +6,25 @@ const source = fs.readFileSync(require("node:path").join(__dirname, "../content.
 
 function load(pathname, options = {}) {
   const events = {}, windowEvents = {}, frames = [], redirects = [], timers = [];
-  let observe, observerCallback, clicks = 0, now = 1000;
+  let observe, observerCallback, clicks = 0, now = 1000, timerId = 0;
   let checked = !!options.toggle, acceptsClicks = !!options.toggleResponds;
+  let hiddenPlayer = !!options.hiddenPlayer, disabled = !!options.disabled;
   const links = options.links || [];
   const shelves = options.shelves || [];
   const toggle = options.toggle ? {
-    getAttribute: () => String(checked),
+    getAttribute: name => name === "aria-checked" ? String(checked) : null,
+    closest: () => disabled ? {} : null,
     click() { clicks++; if (acceptsClicks) checked = false; },
   } : null;
+  const player = { querySelector: () => checked ? toggle : null };
   const document = {
     documentElement: options.noRoot ? null : {},
     addEventListener(name, fn) { events[name] = fn; },
     querySelectorAll(selector) { return selector.startsWith("ytd-topbar") ? links : shelves; },
-    querySelector() { return checked ? toggle : null; },
+    querySelector(selector) {
+      if (selector.startsWith("ytd-watch-flexy")) return hiddenPlayer ? null : player;
+      return checked ? toggle : null;
+    },
   };
   const window = { addEventListener(name, fn) { windowEvents[name] = fn; } };
   window.top = options.iframe ? {} : window;
@@ -26,7 +32,11 @@ function load(pathname, options = {}) {
   vm.runInNewContext(source, {
     window, document, location, Date: { now: () => now },
     requestAnimationFrame(fn) { frames.push(fn); },
-    setTimeout(fn) { timers.push(fn); return timers.length; },
+    setTimeout(fn, delay) { fn.id = ++timerId; fn.delay = delay; timers.push(fn); return fn.id; },
+    clearTimeout(id) {
+      const index = timers.findIndex(fn => fn.id === id);
+      if (index !== -1) timers.splice(index, 1);
+    },
     MutationObserver: class {
       constructor(fn) { observerCallback = fn; }
       observe(root, config) { observe = config; }
@@ -36,7 +46,10 @@ function load(pathname, options = {}) {
     mutate: () => observerCallback(), config: () => observe,
     clicks: () => clicks, advance: () => { now += 600; },
     attachToggleHandler: () => { acceptsClicks = true; },
-    setChecked: value => { checked = value; }, checked: () => checked};
+    setChecked: value => { checked = value; }, checked: () => checked,
+    hidePlayer: () => { hiddenPlayer = true; },
+    showPlayer: () => { hiddenPlayer = false; },
+    setDisabled: value => { disabled = value; }};
 }
 
 test("homepage redirects immediately without starting a DOM observer", () => {
@@ -77,7 +90,9 @@ test("DOM updates are coalesced and autoplay changes are observed", () => {
   const page = load("/watch");
   page.mutate(); page.mutate(); page.mutate();
   assert.equal(page.frames.length, 1);
-  assert.deepEqual(Array.from(page.config().attributeFilter), ["aria-checked", "href", "page-subtype"]);
+  for (const attr of ["aria-checked", "href", "page-subtype", "hidden", "aria-hidden", "disabled", "aria-disabled"]) {
+    assert.ok(page.config().attributeFilter.includes(attr), attr);
+  }
   page.frames.shift()();
   page.mutate();
   assert.equal(page.frames.length, 1);
@@ -126,6 +141,54 @@ test("a successful autoplay click does not schedule another attempt", () => {
   assert.equal(page.clicks(), 1);
   assert.equal(page.checked(), false);
   assert.equal(page.timers.length, 0);
+});
+
+test("retained hidden watch players are left alone until they become active", () => {
+  const page = load("/results", {toggle: true, hiddenPlayer: true, toggleResponds: true});
+  assert.equal(page.clicks(), 0);
+  assert.equal(page.timers.length, 0);
+  page.showPlayer();
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+});
+
+test("leaving the watch player cancels an ignored autoplay click", () => {
+  const page = load("/watch", {toggle: true});
+  assert.equal(page.timers.length, 1);
+  page.hidePlayer();
+  page.location.pathname = "/results";
+  page.events["yt-navigate-finish"]();
+  assert.equal(page.timers.length, 0);
+  page.advance();
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+});
+
+test("disabled autoplay controls wait for player readiness", () => {
+  const page = load("/watch", {toggle: true, disabled: true, toggleResponds: true});
+  assert.equal(page.clicks(), 0);
+  assert.equal(page.timers.length, 0);
+  page.setDisabled(false);
+  page.mutate();
+  page.frames.shift()();
+  assert.equal(page.clicks(), 1);
+  assert.equal(page.checked(), false);
+});
+
+test("autoplay retries are cancelled when the control switches off or becomes disabled", () => {
+  for (const state of ["off", "disabled"]) {
+    const page = load("/watch", {toggle: true});
+    assert.equal(page.timers.length, 1);
+    if (state === "off") page.setChecked(false);
+    else page.setDisabled(true);
+    page.mutate();
+    page.frames.shift()();
+    assert.equal(page.timers.length, 0, state);
+    assert.equal(page.clicks(), 1, state);
+  }
 });
 
 test("home links are rewritten without repeatedly mutating the same href", () => {

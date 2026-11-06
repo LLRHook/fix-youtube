@@ -11,6 +11,7 @@
     'ytd-search ytd-shelf-renderer, ' +
     'ytd-browse[page-subtype="subscriptions"] ytd-rich-shelf-renderer';
   let scheduled = false;
+  let lastAutoplayToggle = null;
   let lastAutoplayClick = -Infinity;
   let autoplayRetry = null;
 
@@ -49,18 +50,36 @@
       // Re-evaluate renderers reused by YouTube after navigation.
       shelf.classList.toggle("fix-yt-recommendation", hidden);
     });
-    // aria-checked is normally on the inner button, not its container.
-    const toggle = document.querySelector(
-      '.ytp-autonav-toggle-button[aria-checked="true"], ' +
-      '.ytp-autonav-toggle-button-container[aria-checked="true"]'
-    );
-    if (toggle && Date.now() - lastAutoplayClick > 500) {
+    disableAutoplay();
+  }
+
+  function disableAutoplay() {
+    // YouTube retains hidden watch renderers during SPA navigation. Ignore those
+    // and inline previews, which can expose the same autoplay classes.
+    const player = document.querySelector('ytd-watch-flexy:not([hidden]) #movie_player');
+    // Prefer the inner control even when the container also has aria-checked.
+    // Clicking the container does not dispatch to the button's click handler.
+    const toggle = player?.querySelector('.ytp-autonav-toggle-button[aria-checked]') ||
+      player?.querySelector('.ytp-autonav-toggle-button-container[aria-checked]');
+    if (!toggle || toggle.getAttribute("aria-checked") !== "true" ||
+        toggle.closest('[hidden], [aria-hidden="true"], [disabled], [aria-disabled="true"]')) {
+      if (autoplayRetry !== null) clearTimeout(autoplayRetry);
+      autoplayRetry = null;
+      lastAutoplayToggle = null;
+      return;
+    }
+    // A newly mounted player must not inherit another control's cooldown.
+    if (toggle !== lastAutoplayToggle) {
+      lastAutoplayToggle = toggle;
+      lastAutoplayClick = -Infinity;
+    }
+    if (Date.now() - lastAutoplayClick > 500) {
       lastAutoplayClick = Date.now();
       toggle.click();
     }
     // At document-start YouTube may not have attached its click handler yet.
     // Verify an ignored click without relying on a later, unrelated mutation.
-    if (toggle?.getAttribute("aria-checked") === "true" && autoplayRetry === null) {
+    if (toggle.getAttribute("aria-checked") === "true" && autoplayRetry === null) {
       autoplayRetry = setTimeout(() => {
         autoplayRetry = null;
         scheduleClean();
@@ -79,7 +98,7 @@
     const observer = new MutationObserver(scheduleClean);
     observer.observe(document.documentElement, {
       childList: true, subtree: true, characterData: true, attributes: true,
-      attributeFilter: ["aria-checked", "href", "page-subtype"],
+      attributeFilter: ["aria-checked", "href", "page-subtype", "hidden", "aria-hidden", "disabled", "aria-disabled"],
     });
     document.addEventListener("yt-navigate-finish", cleanPage);
     document.addEventListener("yt-page-data-updated", scheduleClean);

@@ -2,7 +2,7 @@
 
 Fix YouTube is a free, open-source browser extension that hides YouTube Shorts and recommendations, disables autoplay, and opens your Subscriptions feed by default. It has one fixed setup and nothing to configure.
 
-Built for desktop Chrome, Helium and Firefox. Version 0.3.0 is available from [GitHub releases](https://github.com/LLRHook/fix-youtube/releases) for local installation; store publication is pending.
+Built for desktop Chrome, Helium and Firefox. Source version 0.3.1 can be built for local installation; store publication is pending.
 
 [Install](#install-locally) · [Privacy](PRIVACY.md) · [Report a problem](https://github.com/LLRHook/fix-youtube/issues) · [Development](docs/DEVELOPMENT.md)
 
@@ -26,7 +26,7 @@ Subscriptions require a YouTube sign-in. You can still search and watch public v
 
 Download `fix-youtube-chrome-<version>.zip` or `fix-youtube-firefox-<version>.zip` from the [latest release](https://github.com/LLRHook/fix-youtube/releases/latest) and extract it into a folder you will keep. `SHA256SUMS.txt` lists each ZIP's checksum.
 
-To build from source instead, clone this repository and run `python build.py chrome` or `python build.py firefox` (Python 3.9+, no extra packages). This creates `dist-chrome` or `dist-firefox`.
+To build from source instead, clone this repository and run `npm run build -- chrome` or `npm run build -- firefox` with Rust 1.88 or newer. `python build.py chrome` and `python build.py firefox` remain compatibility launchers for the same Rust packager (Python 3.9+, no extra Python packages). This creates `dist-chrome` or `dist-firefox`.
 
 ### Chrome or Helium
 
@@ -70,8 +70,8 @@ Version 0.3.0 ignores preferences from earlier versions and removes their dynami
 
 ## Development and release status
 
-The extension uses plain JavaScript and CSS, with no runtime dependencies; Puppeteer is used only for tests. See the [development guide](docs/DEVELOPMENT.md) for tests, packaging, and the file layout, and the [distribution checklist](DISTRIBUTION.md) for store submission.
+The extension uses plain JavaScript and CSS, with no runtime dependencies; Puppeteer is used only for tests. The Rust build tool creates the allowlisted ZIPs and submission checksums; its dependencies are not included in the extension. See the [development guide](docs/DEVELOPMENT.md) for tests, packaging, and the file layout, and the [distribution checklist](DISTRIBUTION.md) for store submission.
 
-CI tests the installed extension in Chrome and Firefox: redirects, injection, upgrade from 0.2.0, restart, disable and uninstall. Live checks on YouTube cover playback, captions, theater/fullscreen, playlists, live chat, and German and Japanese layouts. Recommendation-shelf removal in search matches English shelf titles only. The [verification record](docs/VERIFICATION.md) lists the evidence and tested browser versions.
+CI runs installed-extension checks in Chrome and Firefox: redirects, injection, upgrade from 0.2.0, restart, disable and uninstall. The verification record separates historical live YouTube checks from current automated fixtures and any browser checks still needed. Recommendation-shelf removal in search matches English shelf titles only. The [verification record](docs/VERIFICATION.md) lists the evidence and tested browser versions.
 
 [MIT license](LICENSE). Fix YouTube is an independent extension and is not affiliated with YouTube or Google.

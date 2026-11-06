@@ -39,6 +39,7 @@ for (const name of BROWSERS) {
       const results = await page.evaluate(() => window.testResults);
       assert.ok(results.length > 0);
       assert.deepEqual(results.filter(result => !result.pass).map(result => result.name), []);
+      t.diagnostic(name + ": " + results.length + " DOM/CSS assertions passed");
     });
 
     await t.test("Home opens Subscriptions before YouTube is requested", async () => {
@@ -62,6 +63,41 @@ for (const name of BROWSERS) {
       await page.goto("https://www.youtube.com/results?search_query=nasa");
       await h.cleaned(page);
       assert.deepEqual(await h.state(page), CLEAN);
+    });
+
+    await t.test("SPA player replacement leaves inactive autoplay alone and waits for readiness", async () => {
+      await page.goto(WATCH);
+      await h.cleaned(page);
+      await page.evaluate(() => {
+        const retained = document.querySelector("ytd-watch-flexy");
+        retained.id = "retained-watch";
+        retained.hidden = true;
+        retained.querySelector(".ytp-autonav-toggle-button").setAttribute("aria-checked", "true");
+        history.pushState({}, "", "/results?search_query=synthetic");
+        document.dispatchEvent(new CustomEvent("yt-navigate-finish"));
+      });
+      // Let any outstanding retry run. A retained player must never be clicked.
+      await pause(650);
+      assert.equal(await page.$eval("#retained-watch .ytp-autonav-toggle-button", el => el.getAttribute("aria-checked")), "true");
+      await page.evaluate(() => {
+        const active = document.createElement("ytd-watch-flexy");
+        active.id = "replacement-watch";
+        active.innerHTML = '<div id="movie_player"><div class="ytp-autonav-toggle-button-container" aria-disabled="true"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div></div>';
+        active.querySelector("button").onclick = e => e.target.setAttribute("aria-checked", "false");
+        document.body.appendChild(active);
+        history.pushState({}, "", "/watch?v=synthetic");
+        document.dispatchEvent(new CustomEvent("yt-navigate-finish"));
+      });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await page.$eval("#replacement-watch button", el => el.getAttribute("aria-checked")), "true");
+      await page.$eval("#replacement-watch .ytp-autonav-toggle-button-container", el => el.removeAttribute("aria-disabled"));
+      await page.waitForFunction(() => document.querySelector("#replacement-watch button").getAttribute("aria-checked") === "false");
+      assert.equal(await page.$eval("#retained-watch button", el => el.getAttribute("aria-checked")), "true");
+      await page.evaluate(() => {
+        document.querySelector("#replacement-watch").hidden = true;
+        document.querySelector("#retained-watch").hidden = false;
+      });
+      await page.waitForFunction(() => document.querySelector("#retained-watch button").getAttribute("aria-checked") === "false");
     });
 
     await t.test("client-side navigation to Shorts uses the standard player", async () => {

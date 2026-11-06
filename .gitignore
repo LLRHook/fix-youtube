@@ -11,3 +11,7 @@ dist-firefox/
 # Local agent context
 CLAUDE.md
 .claude/
+
+# Rust packaging and its isolated staging directories
+tools/packager/target/
+.fix-youtube-build-*/

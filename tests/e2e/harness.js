@@ -11,7 +11,7 @@ const puppeteer = require("puppeteer");
 const root = path.resolve(__dirname, "../..");
 const HOSTS = new Set(["www.youtube.com", "youtube.com"]);
 // Last configurable release (0.2.0). Its dynamic redirect rules must be removed on upgrade.
-const LEGACY_COMMIT = "8ec06f45ae39ba6e6ac9aeefb8917474c52dd63b";
+const { commit: LEGACY_COMMIT } = require("../fixtures/legacy-release.json");
 
 const PAGE = `<!doctype html><meta charset="utf-8"><title>YouTube fixture</title>
 <style>ytd-video-renderer,ytd-guide-entry-renderer,ytd-watch-flexy,#secondary{display:block}</style>
@@ -19,8 +19,8 @@ const PAGE = `<!doctype html><meta charset="utf-8"><title>YouTube fixture</title
 <ytd-guide-entry-renderer id="nav-shorts"><a title="Shorts">Shorts</a></ytd-guide-entry-renderer>
 <ytd-video-renderer id="ordinary"><a id="video-title" href="/watch?v=ordinary">Video</a></ytd-video-renderer>
 <ytd-video-renderer id="short"><a id="thumbnail" href="/shorts/Ab_c-D12345">Short</a></ytd-video-renderer>
-<ytd-watch-flexy><div id="secondary"><div id="related">Up next</div></div></ytd-watch-flexy>
-<div class="ytp-autonav-toggle-button-container"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div>
+<ytd-watch-flexy><div id="secondary"><div id="related">Up next</div></div>
+<div id="movie_player"><div class="ytp-autonav-toggle-button-container"><button class="ytp-autonav-toggle-button" aria-checked="true">Autoplay</button></div></div></ytd-watch-flexy>
 <script>document.querySelector(".ytp-autonav-toggle-button").onclick = e => e.target.setAttribute("aria-checked", "false");</script>`;
 
 function certificate(dir) {
@@ -48,7 +48,15 @@ async function startYouTube() {
     site.emit("connection", socket);
   });
   const tunnels = new Set();
-  proxy.on("connection", socket => { tunnels.add(socket); socket.on("close", () => tunnels.delete(socket)); });
+  proxy.on("connection", socket => {
+    tunnels.add(socket);
+    socket.on("close", () => tunnels.delete(socket));
+    // Browser restart/uninstall may reset a CONNECT tunnel during TLS setup.
+    // It is a closed client connection, not a failure of the test server.
+    socket.on("error", error => {
+      if (error.code !== "ECONNRESET" && error.code !== "EPIPE") throw error;
+    });
+  });
   await new Promise(resolve => proxy.listen(0, "127.0.0.1", resolve));
   return {
     port: proxy.address().port,
